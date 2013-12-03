@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>res/back.png</file>
+        <file>res/open.png</file>
+        <file>res/home.png</file>
+        <file>res/close.png</file>
+    </qresource>
+</RCC>
