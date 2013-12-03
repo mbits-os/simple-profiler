@@ -12,3 +12,15 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+
+void MainWindow::onBack()
+{
+}
+
+void MainWindow::onHome()
+{
+}
+
+void MainWindow::onOpen()
+{
+}
