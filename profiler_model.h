@@ -2,6 +2,7 @@
 #define PROFILER_MODEL_H
 
 #include <QAbstractListModel>
+#include <QStyledItemDelegate>
 #include "navigator.h"
 #include <algorithm>
 
@@ -15,12 +16,22 @@ enum EAlignment
 
 class ProfilerModel;
 
+namespace Qt {
+    enum
+    {
+        IsProgressRole = UserRole + 1,
+        ProgressMaxRole
+    };
+}
+
 struct Column
 {
     virtual ~Column() {}
     virtual QString title() const = 0;
     virtual QVariant getDisplayData(const ProfilerModel* parent, const Function&) const = 0;
     virtual EAlignment getAlignment() const = 0;
+    virtual bool isProgress() const = 0;
+    virtual profiler::time_t maxDuration(const ProfilerModel* parent) const = 0;
     virtual bool less(const Function& lhs, const Function& rhs) const = 0;
 };
 typedef std::shared_ptr<Column> ColumnPtr;
@@ -99,6 +110,7 @@ public:
     void appendColumn(const ColumnPtr& col) { addColumn(m_columns.size(), col); }
     void addColumn(int pos, const ColumnPtr& col);
     void removeColumn(int pos);
+    ColumnPtr getColumn(int pos) const { return m_columns[pos]; }
 
     profiler::time_t second() const { return m_second; }
     profiler::time_t max_duration() const { return m_data ? m_data->max_duration() : 1; }
@@ -109,6 +121,15 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
+};
+
+class ProfilerDelegate: public QStyledItemDelegate
+{
+    Q_OBJECT;
+public:
+    explicit ProfilerDelegate(QObject *parent = 0);
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 };
 
 namespace Columns
@@ -127,6 +148,8 @@ namespace Columns
             QString title() const { return T::title(); }
             QVariant getDisplayData(const ProfilerModel* parent, const Function& f) const { return T::getDisplayData(parent, f); }
             EAlignment getAlignment() const { return T::getAlignment(); }
+            bool isProgress() const { return T::isProgress(); }
+            profiler::time_t maxDuration(const ProfilerModel* parent) const { return T::maxDuration(parent); }
             bool less(const Function& lhs, const Function& rhs) const { return T::less(lhs, rhs); }
         };
 
@@ -148,6 +171,16 @@ namespace Columns
             {
                 return Final::getData(lhs) < Final::getData(rhs);
             }
+
+            static bool isProgress()
+            {
+                return false;
+            }
+
+            static profiler::time_t maxDuration(const ProfilerModel* parent)
+            {
+                return parent->max_duration() * SCALE;
+            }
         };
 
         template <typename Final, typename Scale = Direct, EAlignment Alignment = EAlignment_Right>
@@ -162,14 +195,19 @@ namespace Columns
         template <typename Final, typename Total, typename Own, typename Scale = Direct, EAlignment Alignment = EAlignment_Left>
         struct GraphColumnInfo: ColumnInfo<Final, Scale, Alignment>
         {
-            static QVariant getDisplayData(const ProfilerModel* model, const Function& f)
+            static QVariant getDisplayData(const ProfilerModel*, const Function& f)
             {
-                return impl::usageFormat(model->max_duration() * SCALE, Total::getData(f), Own::getData(f));
+                return Total::getData(f);
             }
 
             static bool less(const Function& lhs, const Function& rhs)
             {
                 return Total::getData(lhs) < Total::getData(rhs);
+            }
+
+            static bool isProgress()
+            {
+                return true;
             }
         };
     }

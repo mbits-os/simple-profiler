@@ -13,6 +13,7 @@ class MainWindowEx;
 }
 
 class ProfilerModel;
+class ProfilerDelegate;
 
 class OpenTask: public QThread
 {
@@ -60,6 +61,7 @@ private:
     profiler::data_ptr m_data;
     Navigator* m_nav;
     ProfilerModel* m_model;
+    ProfilerDelegate* m_delegate;
     unsigned long m_animationCount;
 
     void doOpen(const QString& fileName);

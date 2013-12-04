@@ -47,6 +47,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_data(std::make_shared<profiler::data>()),
     m_nav(new Navigator(this)),
     m_model(new ProfilerModel(this)),
+    m_delegate(new ProfilerDelegate(this)),
     m_animationCount(0)
 {
     m_nav->setData(m_data);
@@ -72,6 +73,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_model->appendColumn(Columns::Name::create());
 
     ui->treeView->setModel(m_model);
+    ui->treeView->setItemDelegate(m_delegate);
     ui->treeView->header()->setSectionsClickable(true);
     ui->treeView->sortByColumn(1, Qt::DescendingOrder);
 }

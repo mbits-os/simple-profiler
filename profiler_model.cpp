@@ -1,4 +1,6 @@
 #include "profiler_model.h"
+#include <QApplication>
+#include <QDebug>
 
 ProfilerModel::ProfilerModel(QObject *parent)
     : QAbstractListModel(parent)
@@ -68,7 +70,16 @@ QVariant ProfilerModel::data(const QModelIndex &index, int role) const
                 return QVariant(Qt::AlignTop | Qt::AlignLeft);
             case EAlignment_Right:
                 return QVariant(Qt::AlignTop | Qt::AlignRight);
-            }
+            };
+            break;
+        }
+        case Qt::IsProgressRole:
+        {
+            return m_columns.at(index.column())->isProgress();
+        }
+        case Qt::ProgressMaxRole:
+        {
+            return m_columns.at(index.column())->maxDuration(this);
         }
         };
     }
@@ -122,6 +133,45 @@ void ProfilerModel::sort(int column, Qt::SortOrder order)
         m_sorter.sort(m_sorted);
     endResetModel();
 }
+
+ProfilerDelegate::ProfilerDelegate(QObject *parent)
+    : QStyledItemDelegate(parent)
+{
+}
+
+void ProfilerDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QVariant isProgress = index.data(Qt::IsProgressRole);
+
+    //qDebug() << "Profiler::paint" << index.row() << index.column() << isProgress << index.data() << index.data(Qt::ProgressMaxRole);
+
+    if (isProgress.toBool())
+    {
+        bool ok = true;
+        qulonglong max_progress = index.data(Qt::ProgressMaxRole).toULongLong(&ok);
+        if (ok)
+        {
+            qulonglong progress = index.data().toULongLong(&ok);
+            if (ok)
+            {
+                QStyleOptionProgressBar progressBarOption;
+                progressBarOption.rect = option.rect;
+                progressBarOption.minimum = 0;
+                progressBarOption.maximum = max_progress;
+                progressBarOption.progress = progress;
+                progressBarOption.text = QString::number(progress * 100 / max_progress) + "%";
+                progressBarOption.textVisible = true;
+
+                QApplication::style()->drawControl(QStyle::CE_ProgressBar,
+                                                   &progressBarOption, painter);
+                return;
+            }
+        }
+    }
+
+    return QStyledItemDelegate::paint(painter, option, index);
+}
+
 
 
 QString Columns::impl::timeFormat(profiler::time_t second, profiler::time_t ticks)
