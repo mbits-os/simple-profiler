@@ -25,6 +25,7 @@ public:
     profiler::function_id id() const { return m_function->id(); }
 
     QString name() const { return m_function ? m_function->name() : QString(); }
+    const CalledAs& calls() const { return m_calls; }
     long long call_count() const { return m_call_count; }
     profiler::time_t duration() const { return m_duration; }
     profiler::time_t ownTime() const { return m_ownTime; }
@@ -129,6 +130,7 @@ signals:
 public slots:
     void back();
     void home();
+    void navigateTo(size_t);
     void cancel();
 
 private slots:

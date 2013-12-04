@@ -6,6 +6,7 @@
 #include "navigator.h"
 #include <functional>
 #include <QThread>
+#include <QModelIndex>
 
 namespace Ui {
 class MainWindowEx;
@@ -40,6 +41,7 @@ public slots:
     void back() { emit onBack(); }
     void home() { emit onHome(); }
     void open();
+    void selected(QModelIndex);
     void aTaskStarted();
     void aTaskStopped();
     void aTaskStopped_nav();
@@ -51,6 +53,7 @@ private slots:
 signals:
     void onBack();
     void onHome();
+    void onNavigate(size_t);
 
 private:
     Ui::MainWindowEx *ui;

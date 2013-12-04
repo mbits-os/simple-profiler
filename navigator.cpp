@@ -63,7 +63,8 @@ void Navigator::doSelect(const HistoryItemPtr& item)
 
     m_currentView->normalize();
 
-    qDebug() << calls.size() << "calls," << m_currentView->get_cached()->size() << "functions.";
+    auto cached = m_currentView->get_cached();
+    qDebug() << calls.size() << "calls," << (cached? cached->size() : 0) << "functions.";
 }
 
 void Navigator::onSelected(NavFunction* cont)
@@ -92,6 +93,19 @@ void Navigator::home()
     m_history.swap(empty);
     hasHistory(false);
     select(nullptr, []{});
+}
+
+void Navigator::navigateTo(size_t ndx)
+{
+    auto cached = m_currentView->get_cached();
+    auto function = cached ? cached->at(ndx) : nullptr;
+    if (!function)
+        return;
+
+    m_history.push(m_currentView);
+
+    auto tmp = std::make_shared<HistoryItem>(function->calls());
+    select(tmp, [this]{ hasHistory(true); });
 }
 
 void Navigator::cancel()

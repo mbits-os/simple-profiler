@@ -201,10 +201,17 @@
    <receiver>MainWindow</receiver>
    <slot>open()</slot>
   </connection>
+  <connection>
+   <sender>treeView</sender>
+   <signal>activated(QModelIndex)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>selected(QModelIndex)</slot>
+  </connection>
  </connections>
  <slots>
   <slot>back()</slot>
   <slot>home()</slot>
   <slot>open()</slot>
+  <slot>selected(QModelIndex)</slot>
  </slots>
 </ui>
