@@ -162,6 +162,8 @@ namespace profiler
             static std::vector< std::shared_ptr<T> >& get_vector(data* pThis) { return select_data<T>::get_vector(pThis); }
         };
     public:
+        bool open(const QString& path);
+
         template <typename T>
         typename select_data<T>::selector select()
         {
