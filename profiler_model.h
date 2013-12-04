@@ -20,6 +20,7 @@ struct Column
     virtual QString title() const = 0;
     virtual QVariant getDisplayData(const ProfilerModel* parent, const Function&) const = 0;
     virtual EAlignment getAlignment() const = 0;
+    virtual bool less(const Function& lhs, const Function& rhs) const = 0;
 };
 typedef std::shared_ptr<Column> ColumnPtr;
 
@@ -59,16 +60,20 @@ namespace Columns
         QString timeFormat(profiler::time_t second, profiler::time_t ticks);
         QString usageFormat(profiler::time_t max, profiler::time_t total, profiler::time_t own);
 
+        struct Direct { enum { SCALE = 1 }; };
+        struct Scaled { enum { SCALE = 1000 }; };
+
         template <typename T>
         struct Impl: Column
         {
             QString title() const { return T::title(); }
             QVariant getDisplayData(const ProfilerModel* parent, const Function& f) const { return T::getDisplayData(parent, f); }
             EAlignment getAlignment() const { return T::getAlignment(); }
+            bool less(const Function& lhs, const Function& rhs) const { return T::less(lhs, rhs); }
         };
 
-        template <typename Final, EAlignment Alignment = EAlignment_Left>
-        struct ColumnInfo
+        template <typename Final, typename Scale = Direct, EAlignment Alignment = EAlignment_Left>
+        struct ColumnInfo: Scale
         {
             static ColumnPtr create() { return std::make_shared< Impl<Final> >();}
             static QVariant getDisplayData(const ProfilerModel*, const Function& f)
@@ -80,23 +85,33 @@ namespace Columns
             {
                 return Alignment;
             }
-        };
 
-        template <typename Final, EAlignment Alignment = EAlignment_Right>
-        struct TimeColumnInfo: ColumnInfo<Final, Alignment>
-        {
-            static QVariant getDisplayData(const ProfilerModel* parent, const Function& f)
+            static bool less(const Function& lhs, const Function& rhs)
             {
-                return timeFormat(parent->second(), Final::getData(f));
+                return Final::getData(lhs) < Final::getData(rhs);
             }
         };
 
-        template <typename Final, EAlignment Alignment = EAlignment_Right>
-        struct AvgTimeColumnInfo: ColumnInfo<Final, Alignment>
+        template <typename Final, typename Scale = Direct, EAlignment Alignment = EAlignment_Right>
+        struct TimeColumnInfo: ColumnInfo<Final, Scale, Alignment>
         {
             static QVariant getDisplayData(const ProfilerModel* parent, const Function& f)
             {
-                return timeFormat(parent->second() * 1000, Final::getData(f) * 1000 / f.call_count());
+                return timeFormat(parent->second() * SCALE, Final::getData(f));
+            }
+        };
+
+        template <typename Final, typename Total, typename Own, typename Scale = Direct, EAlignment Alignment = EAlignment_Right>
+        struct GraphColumnInfo: ColumnInfo<Final, Scale, Alignment>
+        {
+            static QVariant getDisplayData(const ProfilerModel* model, const Function& f)
+            {
+                return impl::usageFormat(model->max_duration() * SCALE, Total::getData(f), Own::getData(f));
+            }
+
+            static bool less(const Function& lhs, const Function& rhs)
+            {
+                return Total::getData(lhs) < Total::getData(rhs);
             }
         };
     }
@@ -107,7 +122,7 @@ namespace Columns
         static QString getData(const Function& f) { return f.name(); }
     };
 
-    struct Count: impl::ColumnInfo<Count, EAlignment_Right>
+    struct Count: impl::ColumnInfo<Count, impl::Direct, EAlignment_Right>
     {
         static QString title() { return "Calls"; }
         static long long getData(const Function& f) { return f.call_count(); }
@@ -125,26 +140,26 @@ namespace Columns
         static profiler::time_t getData(const Function& f) { return f.ownTime(); }
     };
 
-    struct TotalTimeAvg: impl::AvgTimeColumnInfo<TotalTimeAvg>
+    struct TotalTimeAvg: impl::TimeColumnInfo<TotalTimeAvg, impl::Scaled>
     {
         static QString title() { return "Total time (average)"; }
-        static profiler::time_t getData(const Function& f) { return f.duration(); }
+        static profiler::time_t getData(const Function& f) { return f.duration() * SCALE / f.call_count(); }
     };
 
-    struct OwnTimeAvg: impl::AvgTimeColumnInfo<OwnTimeAvg>
+    struct OwnTimeAvg: impl::TimeColumnInfo<OwnTimeAvg, impl::Scaled>
     {
         static QString title() { return "Self time (average)"; }
-        static profiler::time_t getData(const Function& f) { return f.ownTime(); }
+        static profiler::time_t getData(const Function& f) { return f.ownTime() * SCALE / f.call_count(); }
     };
 
-    struct Graph: impl::ColumnInfo<Graph>
+    struct Graph: impl::GraphColumnInfo<Graph, TotalTime, OwnTime>
     {
         static QString title() { return "Time"; }
+    };
 
-        static QVariant getDisplayData(const ProfilerModel* model, const Function& f)
-        {
-            return impl::usageFormat(model->max_duration(), f.duration(), f.ownTime());
-        }
+    struct GraphAvg: impl::GraphColumnInfo<GraphAvg, TotalTimeAvg, OwnTimeAvg, impl::Scaled>
+    {
+        static QString title() { return "Time (average)"; }
     };
 }
 

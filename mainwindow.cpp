@@ -5,6 +5,7 @@
 #include <QFileInfo>
 #include <QThread>
 #include <QMovie>
+#include "profiler_model.h"
 
 namespace Ui
 {
@@ -48,9 +49,10 @@ MainWindow::MainWindow(QWidget *parent) :
     m_model->appendColumn(Columns::Count::create());
     m_model->appendColumn(Columns::TotalTime::create());
     m_model->appendColumn(Columns::OwnTime::create());
+    m_model->appendColumn(Columns::Graph::create());
     m_model->appendColumn(Columns::TotalTimeAvg::create());
     m_model->appendColumn(Columns::OwnTimeAvg::create());
-    m_model->appendColumn(Columns::Graph::create());
+    m_model->appendColumn(Columns::GraphAvg::create());
     m_model->appendColumn(Columns::Name::create());
 
     ui->treeView->setModel(m_model);
