@@ -7,11 +7,12 @@ Navigator::Navigator(QObject *parent) :
 {
 }
 
-void Navigator::select(const HistoryItem& item, std::function<void ()> cont)
+void Navigator::select(const HistoryItemPtr& item, std::function<void ()> cont)
 {
     emit selectStarted();
 
-    SelectTask* task = new SelectTask(this, [this, item](){ return this->doSelect(item); }, cont);
+    HistoryItemPtr local = item;
+    SelectTask* task = new SelectTask(this, [this, local](){ return this->doSelect(local); }, cont);
     QObject::connect(task, SIGNAL(selected(NavFunction*)), this, SLOT(onSelected(NavFunction*)));
     connect(task, &SelectTask::finished, task, &QObject::deleteLater);
     task->start();
@@ -19,27 +20,35 @@ void Navigator::select(const HistoryItem& item, std::function<void ()> cont)
 
 void SelectTask::run()
 {
-    call();
-    NavFunction* _cont = new NavFunction(cont);
-    emit selected(_cont);
+    try
+    {
+        call();
+        NavFunction* _cont = new NavFunction(cont);
+        emit selected(_cont);
+    }
+    catch(std::exception& e)
+    {
+        qDebug() << e.what();
+    }
 }
 
-void Navigator::doSelect(const HistoryItem& item)
+void Navigator::doSelect(const HistoryItemPtr& item)
 {
-    if (item.is_cached())
+    if (item && item->is_cached())
     {
         m_currentView = item;
         return;
     }
 
-    m_currentView = HistoryItem(item.get_calls());
+    CalledAs src(item ? item->get_calls() : CalledAs());
+    m_currentView = std::make_shared<HistoryItem>(src);
 
     profiler::calls calls;
-    if (item.get_calls().empty())
+    if (src.empty())
         calls = m_data->select<profiler::calls>();
     else
     {
-        for (profiler::call_id call: item.get_calls())
+        for (profiler::call_id call: src)
         {
             auto part = m_data->selectCalledFrom(call);
             for (auto&& c: part)
@@ -50,11 +59,11 @@ void Navigator::doSelect(const HistoryItem& item)
     auto functions = m_data->functions();
 
     for (auto&& c: calls)
-        m_currentView.update(functions, c);
+        m_currentView->update(functions, c);
 
-    m_currentView.normalize();
+    m_currentView->normalize();
 
-    qDebug() << calls.size() << "calls," << m_currentView.get_cached().size() << "functions.";
+    qDebug() << calls.size() << "calls," << m_currentView->get_cached()->size() << "functions.";
 }
 
 void Navigator::onSelected(NavFunction* cont)
@@ -82,7 +91,7 @@ void Navigator::home()
     History empty;
     m_history.swap(empty);
     hasHistory(false);
-    select(HistoryItem(), []{});
+    select(nullptr, []{});
 }
 
 void Navigator::cancel()
@@ -114,9 +123,9 @@ void Functions::update(const profiler::functions& functions, const profiler::cal
 
     for (auto&& f: m_functions)
     {
-        if (f.id() == function_id)
+        if (f->id() == function_id)
         {
-            f.update(calledAs);
+            f->update(calledAs);
             return;
         }
     }
@@ -125,7 +134,7 @@ void Functions::update(const profiler::functions& functions, const profiler::cal
     {
         if (f->id() == function_id)
         {
-            m_functions.emplace_back(f, calledAs);
+            m_functions.push_back(std::make_shared<Function>(f, calledAs));
             return;
         }
     }
@@ -135,6 +144,6 @@ void Functions::normalize()
 {
     m_max_duration = 1;
     for (auto&& f: m_functions)
-        if (m_max_duration < f.duration())
-            m_max_duration = f.duration();
+        if (m_max_duration < f->duration())
+            m_max_duration = f->duration();
 }

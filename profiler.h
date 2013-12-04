@@ -7,9 +7,9 @@
 
 namespace profiler
 {
-    typedef long long call_id;
-    typedef long long function_id;
-    typedef long long time_t;
+    typedef unsigned long long call_id;
+    typedef unsigned long long function_id;
+    typedef unsigned long long time_t;
 
     template <typename C, typename R> R extract_ret_type(R (C::*)() const);
 

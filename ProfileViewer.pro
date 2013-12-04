@@ -15,11 +15,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     profiler.cpp \
-    navigator.cpp
+    navigator.cpp \
+    profiler_model.cpp
 
 HEADERS  += mainwindow.h \
     profiler.h \
-    navigator.h
+    navigator.h \
+    profiler_model.h
 
 FORMS    += mainwindow.ui
 

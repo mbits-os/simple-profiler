@@ -47,7 +47,7 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QListView" name="listView"/>
+         <widget class="QTreeView" name="treeView"/>
         </item>
        </layout>
       </widget>

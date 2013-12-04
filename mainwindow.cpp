@@ -4,7 +4,6 @@
 #include <QMessageBox>
 #include <QFileInfo>
 #include <QThread>
-
 #include <QMovie>
 
 namespace Ui
@@ -33,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindowEx),
     m_data(std::make_shared<profiler::data>()),
     m_nav(new Navigator(this)),
+    m_model(new ProfilerModel(this)),
     m_animationCount(0)
 {
     m_nav->setData(m_data);
@@ -43,7 +43,17 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(this, SIGNAL(onHome()), m_nav, SLOT(home()));
     QObject::connect(m_nav, SIGNAL(hasHistory(bool)), this, SLOT(hasHistory(bool)));
     QObject::connect(m_nav, SIGNAL(selectStarted()),  this, SLOT(aTaskStarted()));
-    QObject::connect(m_nav, SIGNAL(selectStopped()),  this, SLOT(aTaskStopped()));
+    QObject::connect(m_nav, SIGNAL(selectStopped()),  this, SLOT(aTaskStopped_nav()));
+
+    m_model->appendColumn(Columns::Count::create());
+    m_model->appendColumn(Columns::TotalTime::create());
+    m_model->appendColumn(Columns::OwnTime::create());
+    m_model->appendColumn(Columns::TotalTimeAvg::create());
+    m_model->appendColumn(Columns::OwnTimeAvg::create());
+    m_model->appendColumn(Columns::Graph::create());
+    m_model->appendColumn(Columns::Name::create());
+
+    ui->treeView->setModel(m_model);
 }
 
 MainWindow::~MainWindow()
@@ -130,6 +140,20 @@ void MainWindow::aTaskStopped()
         ui->stackedWidget->setCurrentIndex(0);
         ui->throbber->setPaused(true);
     }
+}
+
+void MainWindow::aTaskStopped_nav()
+{
+    m_model->beginResetModel();
+
+    m_model->setSecond(m_data->second());
+    auto profile = m_nav->current();
+    m_model->setMaxDuration(profile->max_duration());
+    m_model->setProfileView(profile->get_cached());
+
+    m_model->endResetModel();
+
+    aTaskStopped();
 }
 
 void MainWindow::hasHistory(bool value)

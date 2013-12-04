@@ -22,21 +22,28 @@ public:
     void update(const profiler::call_ptr& calledAs);
     profiler::function_id id() const { return m_function->id(); }
 
+    QString name() const { return m_function ? m_function->name() : QString(); }
     long long call_count() const { return m_call_count; }
     time_t duration() const { return m_duration; }
     time_t ownTime() const { return m_ownTime; }
 };
 
+typedef std::shared_ptr<Function> FunctionPtr;
+
 class Functions
 {
-    typedef std::vector<Function> functions;
+    typedef std::vector<FunctionPtr> functions;
     functions m_functions;
-    time_t    m_max_duration;
+    profiler::time_t m_max_duration;
 public:
     void update(const profiler::functions& functions, const profiler::call_ptr& calledAs);
     size_t size() const { return m_functions.size(); }
+    FunctionPtr at(size_t ndx) const { return m_functions.at(ndx); }
     void normalize();
+    profiler::time_t max_duration() const { return m_max_duration; }
 };
+
+typedef std::shared_ptr<Functions> FunctionsPtr;
 
 class HistoryItem
 {
@@ -45,22 +52,26 @@ public:
     HistoryItem(const CalledAs& calls): m_calls(calls), m_hasCache(false) {}
 
     const CalledAs& get_calls() const { return m_calls; }
-    const Functions& get_cached() const { return m_cached; }
-    bool is_cached() const { return m_hasCache; }
+    FunctionsPtr get_cached() const { return m_cached; }
+    bool is_cached() const { return m_cached != nullptr; }
 
     void update(const profiler::functions& functions, const profiler::call_ptr& calledAs)
     {
-        m_cached.update(functions, calledAs);
+        if (!m_cached)
+            m_cached = std::make_shared<Functions>();
+        m_cached->update(functions, calledAs);
     }
 
-    void normalize() { m_cached.normalize(); }
+    void normalize() { if (m_cached) m_cached->normalize(); }
+    profiler::time_t max_duration() const { return m_cached ? m_cached->max_duration() : 1; }
 private:
     CalledAs m_calls;
-    Functions m_cached;
+    FunctionsPtr m_cached;
     bool m_hasCache;
 };
 
-typedef std::stack<HistoryItem> History;
+typedef std::shared_ptr<HistoryItem> HistoryItemPtr;
+typedef std::stack<HistoryItemPtr> History;
 
 struct NavFunction
 {
@@ -95,13 +106,14 @@ class Navigator : public QObject
 
     profiler::data_ptr m_data;
     History m_history;
-    HistoryItem m_currentView;
+    HistoryItemPtr m_currentView;
 
-    void select(const HistoryItem& item, std::function<void ()> cont);
-    void doSelect(const HistoryItem& item);
+    void select(const HistoryItemPtr& item, std::function<void ()> cont);
+    void doSelect(const HistoryItemPtr& item);
 public:
     explicit Navigator(QObject *parent = 0);
     void setData(const profiler::data_ptr& data) { m_data = data; }
+    HistoryItemPtr current() { return m_currentView; }
 
 signals:
     void hasHistory(bool);

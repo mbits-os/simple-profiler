@@ -11,6 +11,8 @@ namespace Ui {
 class MainWindowEx;
 }
 
+class ProfilerModel;
+
 class OpenTask: public QThread
 {
     Q_OBJECT;
@@ -40,6 +42,7 @@ public slots:
     void open();
     void aTaskStarted();
     void aTaskStopped();
+    void aTaskStopped_nav();
 
 private slots:
     void hasHistory(bool value);
@@ -53,6 +56,7 @@ private:
     Ui::MainWindowEx *ui;
     profiler::data_ptr m_data;
     Navigator* m_nav;
+    ProfilerModel* m_model;
     unsigned long m_animationCount;
 
     void doOpen(const QString& fileName);
