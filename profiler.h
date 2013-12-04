@@ -83,6 +83,8 @@ namespace profiler
         }
 
         T get() { return ref; }
+
+        operator T() { return ref; }
     };
 
     template <typename T, typename P>
@@ -206,6 +208,8 @@ namespace profiler
             return select<calls>().where([=](const call& c){ return c.parent() == called_from; });
         }
     };
+
+    typedef std::shared_ptr<data> data_ptr;
 }
 
 #endif // PROFILER_H
