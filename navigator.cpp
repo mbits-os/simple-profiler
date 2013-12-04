@@ -103,6 +103,8 @@ Function::Function(const profiler::function_ptr& function, const profiler::call_
     , m_call_count(1)
     , m_duration(calledAs->duration())
     , m_ownTime(calledAs->ownTime())
+    , m_longest(calledAs->duration())
+    , m_shortest(calledAs->duration())
 {
     m_calls.push_back(calledAs->id());
 }
@@ -112,6 +114,10 @@ void Function::update(const profiler::call_ptr& calledAs)
     ++m_call_count;
     m_duration += calledAs->duration();
     m_ownTime  += calledAs->ownTime();
+    if (m_longest < calledAs->duration())
+        m_longest = calledAs->duration();
+    if (m_shortest > calledAs->duration())
+        m_shortest = calledAs->duration();
     m_calls.push_back(calledAs->id());
 }
 

@@ -16,6 +16,8 @@ class Function
     long long   m_call_count; // needed? we have m_calls.size()...
     profiler::time_t m_duration;
     profiler::time_t m_ownTime;
+    profiler::time_t m_longest;
+    profiler::time_t m_shortest;
 
 public:
     Function(const profiler::function_ptr& function, const profiler::call_ptr& calledAs);
@@ -26,6 +28,8 @@ public:
     long long call_count() const { return m_call_count; }
     profiler::time_t duration() const { return m_duration; }
     profiler::time_t ownTime() const { return m_ownTime; }
+    profiler::time_t longest() const { return m_longest; }
+    profiler::time_t shortest() const { return m_shortest; }
 };
 
 typedef std::shared_ptr<Function> FunctionPtr;

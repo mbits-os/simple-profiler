@@ -51,6 +51,8 @@ MainWindow::MainWindow(QWidget *parent) :
     m_model->appendColumn(Columns::OwnTime::create());
     m_model->appendColumn(Columns::Graph::create());
     m_model->appendColumn(Columns::TotalTimeAvg::create());
+    m_model->appendColumn(Columns::LongestTime::create());
+    m_model->appendColumn(Columns::ShortestTime::create());
     m_model->appendColumn(Columns::OwnTimeAvg::create());
     m_model->appendColumn(Columns::GraphAvg::create());
     m_model->appendColumn(Columns::Name::create());

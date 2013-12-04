@@ -159,7 +159,7 @@ namespace Columns
             }
         };
 
-        template <typename Final, typename Total, typename Own, typename Scale = Direct, EAlignment Alignment = EAlignment_Right>
+        template <typename Final, typename Total, typename Own, typename Scale = Direct, EAlignment Alignment = EAlignment_Left>
         struct GraphColumnInfo: ColumnInfo<Final, Scale, Alignment>
         {
             static QVariant getDisplayData(const ProfilerModel* model, const Function& f)
@@ -196,6 +196,18 @@ namespace Columns
     {
         static QString title() { return "Self time"; }
         static profiler::time_t getData(const Function& f) { return f.ownTime(); }
+    };
+
+    struct LongestTime: impl::TimeColumnInfo<LongestTime>
+    {
+        static QString title() { return "Longest time"; }
+        static profiler::time_t getData(const Function& f) { return f.longest(); }
+    };
+
+    struct ShortestTime: impl::TimeColumnInfo<ShortestTime>
+    {
+        static QString title() { return "Shortest time"; }
+        static profiler::time_t getData(const Function& f) { return f.shortest(); }
     };
 
     struct TotalTimeAvg: impl::TimeColumnInfo<TotalTimeAvg, impl::Scaled>
