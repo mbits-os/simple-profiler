@@ -55,12 +55,13 @@ typedef std::shared_ptr<Functions> FunctionsPtr;
 class HistoryItem
 {
 public:
-    HistoryItem(): m_hasCache(false) {}
-    HistoryItem(const CalledAs& calls): m_calls(calls), m_hasCache(false) {}
+    HistoryItem() {}
+    HistoryItem(const CalledAs& calls, QString name): m_calls(calls), m_name(name) {}
 
     const CalledAs& get_calls() const { return m_calls; }
     FunctionsPtr get_cached() const { return m_cached; }
     bool is_cached() const { return m_cached != nullptr; }
+    const QString& name() const { return m_name; }
 
     void update(const profiler::functions& functions, const profiler::call_ptr& calledAs)
     {
@@ -74,7 +75,7 @@ public:
 private:
     CalledAs m_calls;
     FunctionsPtr m_cached;
-    bool m_hasCache;
+    QString m_name;
 };
 
 typedef std::shared_ptr<HistoryItem> HistoryItemPtr;

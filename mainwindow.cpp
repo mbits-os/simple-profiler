@@ -13,6 +13,8 @@ namespace Ui
     {
     public:
         QMovie* throbber;
+        QLabel* statusMessage;
+        QLabel* statusThrobber;
 
         void setupUi(QMainWindow *MainWindow)
         {
@@ -22,8 +24,19 @@ namespace Ui
             throbber->setObjectName(QStringLiteral("throbber"));
             throbberLabel->setMovie(throbber);
 
+            statusThrobber = new QLabel(statusBar);
+            statusThrobber->setObjectName(QStringLiteral("statusThrobber"));
+            statusThrobber->setMinimumSize(16, 16);
+            statusBar->addWidget(statusThrobber, 0);
+
+            statusMessage = new QLabel(statusBar);
+            statusMessage->setObjectName(QStringLiteral("statusMessage"));
+            statusBar->addWidget(statusMessage, 1);
+
             throbber->start();
             throbber->setPaused(true);
+
+            stackedWidget->setCurrentIndex(0);
         }
     };
 }
@@ -140,7 +153,8 @@ void MainWindow::aTaskStarted()
     if (!m_animationCount)
     {
         ui->throbber->setPaused(false);
-        ui->stackedWidget->setCurrentIndex(1);
+        ui->statusThrobber->setMovie(ui->throbber);
+        ui->statusThrobber->repaint();
     }
 
     ++m_animationCount;
@@ -150,7 +164,8 @@ void MainWindow::aTaskStopped()
 {
     if (!--m_animationCount)
     {
-        ui->stackedWidget->setCurrentIndex(0);
+        ui->statusThrobber->setMovie(nullptr);
+        ui->statusThrobber->repaint();
         ui->throbber->setPaused(true);
     }
 }
@@ -165,6 +180,12 @@ void MainWindow::aTaskStopped_nav()
     m_model->setProfileView(profile->get_cached());
 
     m_model->endResetModel();
+
+    QString name = profile->name();
+    if (!name.isEmpty())
+        name = tr("In: %1").arg(name);
+
+    ui->statusMessage->setText(name);
 
     aTaskStopped();
 }

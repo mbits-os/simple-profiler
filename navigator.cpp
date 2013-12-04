@@ -41,7 +41,8 @@ void Navigator::doSelect(const HistoryItemPtr& item)
     }
 
     CalledAs src(item ? item->get_calls() : CalledAs());
-    m_currentView = std::make_shared<HistoryItem>(src);
+    QString name(item ? item->name() : QString());
+    m_currentView = std::make_shared<HistoryItem>(src, name);
 
     profiler::calls calls;
     if (src.empty())
@@ -104,8 +105,9 @@ void Navigator::navigateTo(size_t ndx)
 
     m_history.push(m_currentView);
 
-    auto tmp = std::make_shared<HistoryItem>(function->calls());
-    select(tmp, [this]{ hasHistory(true); });
+    QString name = function->name();
+    auto tmp = std::make_shared<HistoryItem>(function->calls(), name);
+    select(tmp, [this, name]{ hasHistory(true); });
 }
 
 void Navigator::cancel()
