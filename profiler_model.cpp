@@ -104,6 +104,13 @@ void ProfilerModel::sort(int column, Qt::SortOrder order)
     if (column == m_sorter.lastColumn() && order == m_sorter.sortOrder())
         return;
 
+    if (column == -1)
+    {
+        m_sorter.clear();
+        setProfileView(m_data); // this will re-populate the m_sorted
+        return;
+    }
+
     bool reverse = column == m_sorter.lastColumn() && order != m_sorter.sortOrder();
 
     m_sorter.setSort(column, m_columns[column], order);
