@@ -38,6 +38,15 @@ namespace profiler
         return attrs.namedItem(name).nodeValue();
     }
 
+    call_ptr find_by_id(const profiler::calls& calls, call_id id)
+    {
+        for (auto&& c: calls)
+            if (c->id() == id)
+                return c;
+
+        return nullptr;
+    }
+
     bool data::open(const QString& path)
     {
         QDomDocument doc("stats");
@@ -79,6 +88,17 @@ namespace profiler
                 return false;
 
             m_calls.push_back(std::make_shared<call>(id, parent, function, duration));
+        }
+
+        for (auto&& c: m_calls)
+        {
+            auto parent_id = c->parent();
+            if (!parent_id)
+                continue;
+
+            auto parent = find_by_id(m_calls, c->parent());
+            if (parent)
+                parent->detract(c->duration());
         }
 
         list = doc.elementsByTagName("fn");
