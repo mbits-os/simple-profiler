@@ -66,6 +66,9 @@ namespace profiler
         m_calls.clear();
         m_functions.clear();
 
+        if (!m_second)
+            m_second = 1;
+
         auto list = doc.elementsByTagName("call");
         auto length = list.length();
         for (decltype(length) i = 0; i < length; ++i)
