@@ -13,9 +13,11 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    profiler.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    profiler.h
 
 FORMS    += mainwindow.ui
 

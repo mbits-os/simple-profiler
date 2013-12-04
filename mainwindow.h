@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "profiler.h"
 
 namespace Ui {
 class MainWindow;
@@ -22,6 +23,7 @@ public slots:
 
 private:
     Ui::MainWindow *ui;
+    profiler::data m_data;
 };
 
 #endif // MAINWINDOW_H
