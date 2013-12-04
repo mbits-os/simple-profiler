@@ -21,11 +21,14 @@ namespace profiler
         static type select(const klass& i) { return i.accessor(); } \
     }
 
-    class function: std::enable_shared_from_this<function>
+    class function
     {
         QString m_name;
         function_id m_id;
     public:
+        function() {}
+        function(function_id id, const QString& name): m_name(name), m_id(id) {}
+
         const QString& name() const { return m_name; }
         function_id id() const { return m_id; }
 
@@ -37,25 +40,29 @@ namespace profiler
     typedef std::weak_ptr<function> weak_function_ptr;
     typedef std::vector<function_ptr> functions;
 
-    class call: std::enable_shared_from_this<call>
+    class call
     {
         call_id     m_id;
         call_id     m_parent;
         function_id m_function;
-        time_t      m_timestamp;
         time_t      m_duration;
     public:
+        call() {}
+        call(call_id id, call_id parent, function_id function, time_t duration)
+            : m_id(id)
+            , m_parent(parent)
+            , m_function(function)
+            , m_duration()
+        {}
 
         call_id id() const { return m_id; }
         call_id parent() const { return m_parent; }
         function_id functionId() const { return m_function; }
-        time_t timestamp() const { return m_timestamp; }
         time_t duration() const { return m_duration; }
 
         FIELD(call, id_field,         id);
         FIELD(call, parent_field,     parent);
         FIELD(call, function_field,   functionId);
-        FIELD(call, timestatmp_field, timestamp);
         FIELD(call, duration_field,   duration);
     };
 
@@ -149,6 +156,7 @@ namespace profiler
     {
         functions m_functions;
         calls m_calls;
+        time_t m_second;
 
         template <typename T> struct select_data;
         template <> struct select_data<call> {
@@ -164,7 +172,10 @@ namespace profiler
             static std::vector< std::shared_ptr<T> >& get_vector(data* pThis) { return select_data<T>::get_vector(pThis); }
         };
     public:
+        data(): m_second(1) {}
         bool open(const QString& path);
+
+        time_t second() const { return m_second; }
 
         template <typename T>
         typename select_data<T>::selector select()
