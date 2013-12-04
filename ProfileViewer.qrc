@@ -4,5 +4,6 @@
         <file>res/open.png</file>
         <file>res/home.png</file>
         <file>res/close.png</file>
+        <file>res/throbber.gif</file>
     </qresource>
 </RCC>
