@@ -11,10 +11,22 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Profile Viewer</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
     <item>
      <widget class="QListView" name="listView"/>
     </item>
@@ -47,7 +59,6 @@
    <addaction name="actionHome"/>
    <addaction name="separator"/>
    <addaction name="actionOpen"/>
-   <addaction name="actionClose"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpen">
@@ -57,6 +68,9 @@
    </property>
    <property name="text">
     <string>Open</string>
+   </property>
+   <property name="toolTip">
+    <string>Open (Ctrl+O)</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
@@ -79,6 +93,12 @@
    <property name="text">
     <string>Back</string>
    </property>
+   <property name="toolTip">
+    <string>Back (Backspace)</string>
+   </property>
+   <property name="shortcut">
+    <string>Backspace</string>
+   </property>
   </action>
   <action name="actionHome">
    <property name="icon">
@@ -87,6 +107,12 @@
    </property>
    <property name="text">
     <string>Home</string>
+   </property>
+   <property name="toolTip">
+    <string>Home (Ctrl+Home)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Home</string>
    </property>
   </action>
  </widget>
@@ -100,69 +126,29 @@
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
    <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>339</x>
-     <y>222</y>
-    </hint>
-   </hints>
   </connection>
   <connection>
    <sender>actionBack</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>onBack()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>339</x>
-     <y>222</y>
-    </hint>
-   </hints>
+   <slot>back()</slot>
   </connection>
   <connection>
    <sender>actionHome</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>onHome()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>339</x>
-     <y>222</y>
-    </hint>
-   </hints>
+   <slot>home()</slot>
   </connection>
   <connection>
    <sender>actionOpen</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>onOpen()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>339</x>
-     <y>222</y>
-    </hint>
-   </hints>
+   <slot>open()</slot>
   </connection>
  </connections>
  <slots>
-  <slot>onBack()</slot>
-  <slot>onHome()</slot>
-  <slot>onOpen()</slot>
+  <slot>back()</slot>
+  <slot>home()</slot>
+  <slot>open()</slot>
  </slots>
 </ui>
