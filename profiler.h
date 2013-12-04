@@ -46,24 +46,30 @@ namespace profiler
         call_id     m_parent;
         function_id m_function;
         time_t      m_duration;
+        time_t      m_detract;
     public:
         call() {}
         call(call_id id, call_id parent, function_id function, time_t duration)
             : m_id(id)
             , m_parent(parent)
             , m_function(function)
-            , m_duration()
+            , m_duration(duration)
+            , m_detract(0)
         {}
+
+        void detract(time_t amount) { m_detract += amount; }
 
         call_id id() const { return m_id; }
         call_id parent() const { return m_parent; }
         function_id functionId() const { return m_function; }
         time_t duration() const { return m_duration; }
+        time_t ownTime() const { return m_duration - m_detract; }
 
         FIELD(call, id_field,         id);
         FIELD(call, parent_field,     parent);
         FIELD(call, function_field,   functionId);
         FIELD(call, duration_field,   duration);
+        FIELD(call, ownTime_field,    ownTime);
     };
 
     typedef std::shared_ptr<call> call_ptr;
@@ -189,10 +195,7 @@ namespace profiler
             return projection_selector<T, P>(select_data<T>::get_vector(this));
         }
 
-        functions selectFunctions()
-        {
-            return select<functions>().get();
-        }
+        const profiler::functions& functions() { return m_functions; }
 
         calls selectFunctionCalls(function_id fn)
         {
