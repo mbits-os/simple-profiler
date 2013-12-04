@@ -3,6 +3,7 @@
 
 #include <QAbstractListModel>
 #include "navigator.h"
+#include <algorithm>
 
 class MainWindow;
 
@@ -33,12 +34,68 @@ class ProfilerModel : public QAbstractListModel
     profiler::time_t m_second;
     profiler::time_t m_max;
     FunctionsPtr     m_data;
+    std::vector<FunctionPtr> m_sorted;
+
+    class Sorter
+    {
+        int m_column;
+        Qt::SortOrder m_sortOrder;
+        ColumnPtr m_less;
+    public:
+        Sorter()
+            : m_column(-1)
+            , m_sortOrder(Qt::AscendingOrder)
+        {}
+
+        void setSort(int column, ColumnPtr less, Qt::SortOrder sortOrder)
+        {
+            m_column = column;
+            m_less = less;
+            m_sortOrder = sortOrder;
+        }
+
+        void clear()
+        {
+            m_less.reset();
+            m_column = -1;
+            m_sortOrder = Qt::AscendingOrder;
+        }
+
+        int lastColumn() const { return m_column; }
+        Qt::SortOrder sortOrder() const { return m_sortOrder; }
+
+        void sort(std::vector<FunctionPtr>& items)
+        {
+            if (!m_less)
+                return;
+
+            std::sort(std::begin(items), std::end(items), *this);
+        }
+
+        void reverse(std::vector<FunctionPtr>& items)
+        {
+            std::reverse(std::begin(items), std::end(items));
+        }
+
+        bool operator()(FunctionPtr lhs, FunctionPtr rhs)
+        {
+            if (m_sortOrder == Qt::DescendingOrder)
+                std::swap(lhs, rhs);
+
+            if (!lhs)
+                return !!rhs; // nullptr < valid, !(nullptr < nullptr)
+
+            return m_less->less(*lhs.get(), *rhs.get());
+        }
+
+    } m_sorter;
+
 public:
     explicit ProfilerModel(QObject *parent = 0);
 
     void setSecond(profiler::time_t second) { m_second = second; }
     void setMaxDuration(profiler::time_t max) { m_max = max; }
-    void setProfileView(const FunctionsPtr& data) { m_data = data; }
+    void setProfileView(const FunctionsPtr& data);
     void appendColumn(const ColumnPtr& col) { addColumn(m_columns.size(), col); }
     void addColumn(int pos, const ColumnPtr& col);
     void removeColumn(int pos);
@@ -51,6 +108,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
 };
 
 namespace Columns

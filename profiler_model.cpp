@@ -5,11 +5,17 @@ ProfilerModel::ProfilerModel(QObject *parent)
     , m_second(1)
     , m_max(1)
 {
-    /*setHeaderData(EColumnId_name,  Qt::Horizontal, QString("Name"));
-    setHeaderData(EColumnId_count, Qt::Horizontal, QString("Calls"));
-    setHeaderData(EColumnId_total, Qt::Horizontal, QString("Total time"));
-    setHeaderData(EColumnId_own,   Qt::Horizontal, QString("Self time"));
-    setHeaderData(EColumnId_graph, Qt::Horizontal, QString("Amount"));*/
+}
+
+void ProfilerModel::setProfileView(const FunctionsPtr& data)
+{
+    m_data = data;
+    if (m_data)
+        m_sorted.assign(m_data->begin(), m_data->end());
+    else
+        m_sorted.clear();
+
+    m_sorter.sort(m_sorted);
 }
 
 
@@ -34,7 +40,8 @@ void ProfilerModel::removeColumn(int pos)
     auto it = m_columns.begin();
     std::advance(it, pos);
     m_columns.erase(it);
-    endInsertColumns();
+    // TODO: what if we removed sorted column?
+    endRemoveColumns();
 }
 
 QVariant ProfilerModel::data(const QModelIndex &index, int role) const
@@ -45,7 +52,7 @@ QVariant ProfilerModel::data(const QModelIndex &index, int role) const
         {
         case Qt::DisplayRole:
         {
-            auto function = m_data ? m_data->at(index.row()) : nullptr;
+            auto function = m_sorted.at(index.row());
 
             if (!function)
                 break;
@@ -87,6 +94,26 @@ int ProfilerModel::rowCount(const QModelIndex &) const
 int ProfilerModel::columnCount(const QModelIndex &) const
 {
     return m_columns.size();
+}
+
+void ProfilerModel::sort(int column, Qt::SortOrder order)
+{
+    if ((size_t)column >= m_columns.size())
+        return;
+
+    if (column == m_sorter.lastColumn() && order == m_sorter.sortOrder())
+        return;
+
+    bool reverse = column == m_sorter.lastColumn() && order != m_sorter.sortOrder();
+
+    m_sorter.setSort(column, m_columns[column], order);
+
+    beginResetModel();
+    if (reverse)
+        m_sorter.reverse(m_sorted);
+    else
+        m_sorter.sort(m_sorted);
+    endResetModel();
 }
 
 

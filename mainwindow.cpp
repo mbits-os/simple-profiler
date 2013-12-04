@@ -56,6 +56,8 @@ MainWindow::MainWindow(QWidget *parent) :
     m_model->appendColumn(Columns::Name::create());
 
     ui->treeView->setModel(m_model);
+    ui->treeView->header()->setSectionsClickable(true);
+    ui->treeView->sortByColumn(1, Qt::DescendingOrder);
 }
 
 MainWindow::~MainWindow()
