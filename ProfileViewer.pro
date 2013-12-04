@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -14,10 +14,12 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    profiler.cpp
+    profiler.cpp \
+    navigator.cpp
 
 HEADERS  += mainwindow.h \
-    profiler.h
+    profiler.h \
+    navigator.h
 
 FORMS    += mainwindow.ui
 
