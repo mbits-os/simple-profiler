@@ -7,15 +7,57 @@
 #include <functional>
 #include <QThread>
 
+typedef std::vector<profiler::call_id> CalledAs;
+
+class Function
+{
+    profiler::function_ptr m_function;
+    CalledAs m_calls;
+    long long   m_call_count; // needed? we have m_calls.size()...
+    time_t      m_duration;
+    time_t      m_ownTime;
+
+public:
+    Function(const profiler::function_ptr& function, const profiler::call_ptr& calledAs);
+    void update(const profiler::call_ptr& calledAs);
+    profiler::function_id id() const { return m_function->id(); }
+
+    long long call_count() const { return m_call_count; }
+    time_t duration() const { return m_duration; }
+    time_t ownTime() const { return m_ownTime; }
+};
+
+class Functions
+{
+    typedef std::vector<Function> functions;
+    functions m_functions;
+    time_t    m_max_duration;
+public:
+    void update(const profiler::functions& functions, const profiler::call_ptr& calledAs);
+    size_t size() const { return m_functions.size(); }
+    void normalize();
+};
+
 class HistoryItem
 {
 public:
-    typedef std::vector<profiler::call_id> calls;
+    HistoryItem(): m_hasCache(false) {}
+    HistoryItem(const CalledAs& calls): m_calls(calls), m_hasCache(false) {}
 
-    const calls& get_calls() const { return m_calls; }
+    const CalledAs& get_calls() const { return m_calls; }
+    const Functions& get_cached() const { return m_cached; }
+    bool is_cached() const { return m_hasCache; }
 
+    void update(const profiler::functions& functions, const profiler::call_ptr& calledAs)
+    {
+        m_cached.update(functions, calledAs);
+    }
+
+    void normalize() { m_cached.normalize(); }
 private:
-    calls m_calls;
+    CalledAs m_calls;
+    Functions m_cached;
+    bool m_hasCache;
 };
 
 typedef std::stack<HistoryItem> History;
@@ -53,6 +95,7 @@ class Navigator : public QObject
 
     profiler::data_ptr m_data;
     History m_history;
+    HistoryItem m_currentView;
 
     void select(const HistoryItem& item, std::function<void ()> cont);
     void doSelect(const HistoryItem& item);
