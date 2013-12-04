@@ -37,9 +37,13 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     m_nav->setData(m_data);
     ui->setupUi(this);
+    hasHistory(false);
+
     QObject::connect(this, SIGNAL(onBack()), m_nav, SLOT(back()));
     QObject::connect(this, SIGNAL(onHome()), m_nav, SLOT(home()));
     QObject::connect(m_nav, SIGNAL(hasHistory(bool)), this, SLOT(hasHistory(bool)));
+    QObject::connect(m_nav, SIGNAL(selectStarted()),  this, SLOT(aTaskStarted()));
+    QObject::connect(m_nav, SIGNAL(selectStopped()),  this, SLOT(aTaskStopped()));
 }
 
 MainWindow::~MainWindow()

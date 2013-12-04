@@ -1,11 +1,29 @@
 #include "navigator.h"
+#include <QMessageBox>
 
 Navigator::Navigator(QObject *parent) :
     QObject(parent)
 {
 }
 
-void Navigator::select(const HistoryItem& item)
+void Navigator::select(const HistoryItem& item, std::function<void ()> cont)
+{
+    emit selectStarted();
+
+    SelectTask* task = new SelectTask(this, [this, item](){ return this->doSelect(item); }, cont);
+    QObject::connect(task, SIGNAL(selected(NavFunction*)), this, SLOT(onSelected(NavFunction*)));
+    connect(task, &SelectTask::finished, task, &QObject::deleteLater);
+    task->start();
+}
+
+void SelectTask::run()
+{
+    call();
+    NavFunction* _cont = new NavFunction(cont);
+    emit selected(_cont);
+}
+
+void Navigator::doSelect(const HistoryItem& item)
 {
     profiler::calls calls;
     if (item.get_calls().empty())
@@ -21,6 +39,12 @@ void Navigator::select(const HistoryItem& item)
     }
 }
 
+void Navigator::onSelected(NavFunction* cont)
+{
+    cont->call();
+    emit selectStopped();
+}
+
 void Navigator::back()
 {
     if (m_history.empty())
@@ -32,7 +56,7 @@ void Navigator::back()
     if (m_history.empty())
         hasHistory(false);
 
-    select(item);
+    select(item, []{});
 }
 
 void Navigator::home()
@@ -40,7 +64,7 @@ void Navigator::home()
     History empty;
     m_history.swap(empty);
     hasHistory(false);
-    select(HistoryItem());
+    select(HistoryItem(), []{});
 }
 
 void Navigator::cancel()
