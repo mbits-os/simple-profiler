@@ -11,12 +11,14 @@ namespace profiler
     typedef long long function_id;
     typedef long long time_t;
 
-#define FIELD(klass, name, fld) \
+    template <typename C, typename R> R extract_ret_type(R (C::*)() const);
+
+#define FIELD(klass, name, accessor) \
     struct name \
     { \
-        typedef typename std::decay<decltype(klass::fld)>::type type; \
+        typedef std::decay<decltype(extract_ret_type(&klass::accessor))>::type type; \
         typedef std::vector<type> vector; \
-        static type select(const klass& i) { return i.fld; } \
+        static type select(const klass& i) { return i.accessor(); } \
     }
 
     class function: std::enable_shared_from_this<function>
@@ -27,8 +29,8 @@ namespace profiler
         const QString& name() const { return m_name; }
         function_id id() const { return m_id; }
 
-        FIELD(function, name_field,     name());
-        FIELD(function, parent_field,   id());
+        FIELD(function, name_field,     name);
+        FIELD(function, parent_field,   id);
     };
 
     typedef std::shared_ptr<function> function_ptr;
@@ -50,11 +52,11 @@ namespace profiler
         time_t timestamp() const { return m_timestamp; }
         time_t duration() const { return m_duration; }
 
-        FIELD(call, id_field,         id());
-        FIELD(call, parent_field,     parent());
-        FIELD(call, function_field,   functionId());
-        FIELD(call, timestatmp_field, id());
-        FIELD(call, duration_field,   id());
+        FIELD(call, id_field,         id);
+        FIELD(call, parent_field,     parent);
+        FIELD(call, function_field,   functionId);
+        FIELD(call, timestatmp_field, timestamp);
+        FIELD(call, duration_field,   duration);
     };
 
     typedef std::shared_ptr<call> call_ptr;
@@ -99,7 +101,7 @@ namespace profiler
             for (auto&& e: ref)
             {
                 if (e && clause(*e.get()))
-                    out.push_back(P::select(e));
+                    out.push_back(P::select(*e.get()));
             }
 
             return out;
@@ -155,9 +157,9 @@ namespace profiler
             typedef item_selector<functions> selector;
             static functions& get_vector(data* pThis) { return pThis->m_functions; }
         };
-        template <typename T> struct select_data< std::vector<T> > {
-            typedef vector_selector< std::vector<T> > selector;
-            static std::vector<T>& get_vector(data* pThis) { return select_data<T>::get_vector(pThis); }
+        template <typename T> struct select_data< std::vector< std::shared_ptr<T> > > {
+            typedef vector_selector< std::vector< std::shared_ptr<T> > > selector;
+            static std::vector< std::shared_ptr<T> >& get_vector(data* pThis) { return select_data<T>::get_vector(pThis); }
         };
     public:
         template <typename T>
@@ -189,12 +191,12 @@ namespace profiler
 
         call::id_field::vector selectIdsOfFunctionCalls(function_id fn)
         {
-            return select<calls, call::field_id>().where([=](const call& c){ return c.functionId() == fn; });
+            return select<calls, call::id_field>().where([=](const call& c){ return c.functionId() == fn; });
         }
 
         call::id_field::vector selectIdsOfFunctionCalls(function_id fn, call_id called_from)
         {
-            return select<calls, call::field_id>().where([=](const call& c){ return c.functionId() == fn && c.parent() == called_from; });
+            return select<calls, call::id_field>().where([=](const call& c){ return c.functionId() == fn && c.parent() == called_from; });
         }
 
         calls selectCalledFrom(call_id called_from)
