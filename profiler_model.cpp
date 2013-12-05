@@ -1,6 +1,7 @@
 #include "profiler_model.h"
 #include <QApplication>
 #include <QDebug>
+#include <QPainter>
 
 ProfilerModel::ProfilerModel(QObject *parent)
     : QAbstractListModel(parent)
@@ -60,6 +61,24 @@ QVariant ProfilerModel::data(const QModelIndex &index, int role) const
                 break;
 
             return m_columns.at(index.column())->getDisplayData(this, *function.get());
+        }
+        case Qt::PrimaryDisplayRole:
+        {
+            auto function = m_sorted.at(index.row());
+
+            if (!function)
+                break;
+
+            return m_columns.at(index.column())->getPrimaryData(this, *function.get());
+        }
+        case Qt::SecondaryDisplayRole:
+        {
+            auto function = m_sorted.at(index.row());
+
+            if (!function)
+                break;
+
+            return m_columns.at(index.column())->getSecondaryData(this, *function.get());
         }
         case Qt::TextAlignmentRole:
         {
@@ -141,35 +160,40 @@ ProfilerDelegate::ProfilerDelegate(QObject *parent)
 
 void ProfilerDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    QVariant isProgress = index.data(Qt::IsProgressRole);
+    static QColor COLOR_PRIMARY(0x00, 0x80, 0x00);
+    static QColor COLOR_SECONDARY(0x00, 0x40, 0x00);
 
-    //qDebug() << "Profiler::paint" << index.row() << index.column() << isProgress << index.data() << index.data(Qt::ProgressMaxRole);
+    QStyledItemDelegate::paint(painter, option, index);
 
-    if (isProgress.toBool())
+    if (index.data(Qt::IsProgressRole).toBool())
     {
-        bool ok = true;
-        qulonglong max_progress = index.data(Qt::ProgressMaxRole).toULongLong(&ok);
-        if (ok)
-        {
-            qulonglong progress = index.data().toULongLong(&ok);
-            if (ok)
-            {
-                QStyleOptionProgressBar progressBarOption;
-                progressBarOption.rect = option.rect;
-                progressBarOption.minimum = 0;
-                progressBarOption.maximum = max_progress;
-                progressBarOption.progress = progress;
-                progressBarOption.text = QString::number(progress * 100 / max_progress) + "%";
-                progressBarOption.textVisible = true;
+        bool has_max = true, has_primary = true, has_secondary = true;
 
-                QApplication::style()->drawControl(QStyle::CE_ProgressBar,
-                                                   &progressBarOption, painter);
-                return;
-            }
+        qulonglong max_progress = index.data(Qt::ProgressMaxRole).toULongLong(&has_max);
+        qulonglong progress = index.data(Qt::PrimaryDisplayRole).toULongLong(&has_primary);
+        qulonglong secondary_progress = index.data(Qt::SecondaryDisplayRole).toULongLong(&has_secondary);
+
+        if (!has_secondary)
+            secondary_progress = 0;
+
+        if (has_max && has_primary)
+        {
+            auto rect = option.rect.normalized();
+            int adjX = 2, adjY = 2;
+            if (rect.width() <= 6) adjX = 0;
+            if (rect.height() <= 6) adjY = 0;
+            rect.adjust(adjX, adjY, -adjX, -adjY);
+
+            auto rectPrimary = rect;
+            auto rectSecondary = rect;
+
+            rectPrimary.setWidth(rectPrimary.width() * progress / max_progress);
+            rectSecondary.setWidth(rectPrimary.width() * secondary_progress / max_progress);
+
+            painter->fillRect(rectPrimary, COLOR_PRIMARY);
+            painter->fillRect(rectSecondary, COLOR_SECONDARY);
         }
     }
-
-    return QStyledItemDelegate::paint(painter, option, index);
 }
 
 

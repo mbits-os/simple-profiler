@@ -20,7 +20,9 @@ namespace Qt {
     enum
     {
         IsProgressRole = UserRole + 1,
-        ProgressMaxRole
+        ProgressMaxRole,
+        PrimaryDisplayRole,
+        SecondaryDisplayRole
     };
 }
 
@@ -29,6 +31,8 @@ struct Column
     virtual ~Column() {}
     virtual QString title() const = 0;
     virtual QVariant getDisplayData(const ProfilerModel* parent, const Function&) const = 0;
+    virtual QVariant getPrimaryData(const ProfilerModel* parent, const Function&) const = 0;
+    virtual QVariant getSecondaryData(const ProfilerModel* parent, const Function&) const = 0;
     virtual EAlignment getAlignment() const = 0;
     virtual bool isProgress() const = 0;
     virtual profiler::time_t maxDuration(const ProfilerModel* parent) const = 0;
@@ -147,6 +151,8 @@ namespace Columns
         {
             QString title() const { return T::title(); }
             QVariant getDisplayData(const ProfilerModel* parent, const Function& f) const { return T::getDisplayData(parent, f); }
+            QVariant getPrimaryData(const ProfilerModel* parent, const Function& f) const { return T::getPrimaryData(parent, f); }
+            QVariant getSecondaryData(const ProfilerModel* parent, const Function& f) const { return T::getSecondaryData(parent, f); }
             EAlignment getAlignment() const { return T::getAlignment(); }
             bool isProgress() const { return T::isProgress(); }
             profiler::time_t maxDuration(const ProfilerModel* parent) const { return T::maxDuration(parent); }
@@ -160,6 +166,16 @@ namespace Columns
             static QVariant getDisplayData(const ProfilerModel*, const Function& f)
             {
                 return Final::getData(f);
+            }
+
+            static QVariant getPrimaryData(const ProfilerModel*, const Function&)
+            {
+                return QVariant();
+            }
+
+            static QVariant getSecondaryData(const ProfilerModel*, const Function&)
+            {
+                return QVariant();
             }
 
             static EAlignment getAlignment()
@@ -195,9 +211,19 @@ namespace Columns
         template <typename Final, typename Total, typename Own, typename Scale = Direct, EAlignment Alignment = EAlignment_Left>
         struct GraphColumnInfo: ColumnInfo<Final, Scale, Alignment>
         {
-            static QVariant getDisplayData(const ProfilerModel*, const Function& f)
+            static QVariant getDisplayData(const ProfilerModel*, const Function&)
+            {
+                return QVariant();
+            }
+
+            static QVariant getPrimaryData(const ProfilerModel*, const Function& f)
             {
                 return Total::getData(f);
+            }
+
+            static QVariant getSecondaryData(const ProfilerModel*, const Function& f)
+            {
+                return Own::getData(f);
             }
 
             static bool less(const Function& lhs, const Function& rhs)
