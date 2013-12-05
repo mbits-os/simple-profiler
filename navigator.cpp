@@ -165,7 +165,15 @@ void Functions::update(const profiler::functions& functions, const profiler::cal
 void Functions::normalize()
 {
     m_max_duration = 1;
+    m_max_duration_avg = 1;
     for (auto&& f: m_functions)
-        if (m_max_duration < f->duration())
-            m_max_duration = f->duration();
+    {
+        auto dur = f->duration();
+        if (m_max_duration < dur)
+            m_max_duration = dur;
+
+        dur /= f->call_count();
+        if (m_max_duration_avg < dur)
+            m_max_duration_avg = dur;
+    }
 }

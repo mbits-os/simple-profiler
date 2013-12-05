@@ -40,6 +40,7 @@ class Functions
     typedef std::vector<FunctionPtr> functions;
     functions m_functions;
     profiler::time_t m_max_duration;
+    profiler::time_t m_max_duration_avg;
 public:
     void update(const profiler::functions& functions, const profiler::call_ptr& calledAs);
     size_t size() const { return m_functions.size(); }
@@ -48,6 +49,7 @@ public:
     functions::const_iterator end() const { return m_functions.end(); }
     void normalize();
     profiler::time_t max_duration() const { return m_max_duration; }
+    profiler::time_t max_duration_avg() const { return m_max_duration_avg; }
 };
 
 typedef std::shared_ptr<Functions> FunctionsPtr;
