@@ -6,6 +6,8 @@
 #include <QTreeView>
 #include "navigator.h"
 #include <algorithm>
+#include <QAction>
+#include <QDebug>
 
 class MainWindow;
 
@@ -47,10 +49,13 @@ class ColumnBag
     {
         bool m_used;
         ColumnPtr m_col;
+        QAction* m_action;
 
     public:
-        ColDef(): m_used(false) {}
-        ColDef(const ColumnPtr& col): m_used(false), m_col(col) {}
+        ColDef(): m_used(false), m_action(nullptr) {}
+        ColDef(const ColumnPtr& col): m_used(false), m_col(col), m_action(nullptr) {}
+
+        QAction* getAction(QObject *parent);
 
         ColumnPtr col() const { return m_col; }
         bool use()
@@ -59,6 +64,8 @@ class ColumnBag
                 return false;
 
             m_used = true;
+            if (m_action)
+                m_action->setChecked(m_used);
             return true;
         }
 
@@ -68,6 +75,8 @@ class ColumnBag
                 return false;
 
             m_used = false;
+            if (m_action)
+                m_action->setChecked(m_used);
             return true;
         }
     };
@@ -91,6 +100,7 @@ public:
     ColumnBag();
 
     void setModel(ProfilerModel* model) { m_model = model; }
+    void buildColumnMenu(QObject* parent, QMenu* menu);
 
     void defaultColumns();
 
@@ -200,6 +210,10 @@ public:
     explicit ProfilerModel(QObject *parent = 0);
 
     void defaultColumns() { m_column_bag.defaultColumns(); }
+    void buildColumnMenu(QObject* parent, QMenu* menu) { m_column_bag.buildColumnMenu(parent, menu); }
+    void useColumn(long long ndx) { m_column_bag.use(ndx); }
+    void stopUsing(long long ndx) { m_column_bag.stop(ndx); }
+
     void setSecond(profiler::time_t second) { m_second = second; }
     void setMaxDuration(profiler::time_t max) { m_max = max; }
     void setProfileView(const FunctionsPtr& data);

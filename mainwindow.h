@@ -50,6 +50,7 @@ public slots:
 private slots:
     void hasHistory(bool value);
     void onOpened(bool success, QString fileName);
+    void onChannel(QAction* action);
 
 signals:
     void onBack();

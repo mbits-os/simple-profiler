@@ -2,6 +2,7 @@
 #include <QApplication>
 #include <QDebug>
 #include <QPainter>
+#include <QMenu>
 
 ProfilerModel::ProfilerModel(QObject *parent)
     : QAbstractListModel(parent)
@@ -204,6 +205,19 @@ void ProfilerDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     }
 }
 
+QAction* ColumnBag::ColDef::getAction(QObject* parent)
+{
+    if (!m_action)
+    {
+        m_action = new QAction(parent);
+        m_action->setCheckable(true);
+        m_action->setChecked(m_used);
+        if (m_col)
+            m_action->setText(m_col->title());
+    }
+    return m_action;
+}
+
 ColumnBag::ColumnBag()
 {
     using namespace Columns;
@@ -218,6 +232,21 @@ ColumnBag::ColumnBag()
     add<OwnTimeAvg>();
     add<Graph>();
     add<GraphAvg>();
+}
+
+void ColumnBag::buildColumnMenu(QObject* parent, QMenu* menu)
+{
+    long long ndx = 0;
+    for (auto&& def: m_defs)
+    {
+        auto action = def.getAction(parent);
+        if (action)
+        {
+            action->setData(ndx);
+            menu->addAction(action);
+        }
+        ++ndx;
+    }
 }
 
 void ColumnBag::defaultColumns()

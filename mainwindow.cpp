@@ -15,6 +15,7 @@ namespace Ui
         QMovie* throbber;
         QLabel* statusMessage;
         QLabel* statusThrobber;
+        QMenu* columnMenu;
 
         void setupUi(QMainWindow *MainWindow)
         {
@@ -32,6 +33,12 @@ namespace Ui
             statusMessage = new QLabel(statusBar);
             statusMessage->setObjectName(QStringLiteral("statusMessage"));
             statusBar->addWidget(statusMessage, 1);
+
+            mainToolBar->removeAction(actionColumns);
+            columnMenu = new QMenu(MainWindow);
+            actionColumns->setMenu(columnMenu);
+            mainToolBar->addAction(actionColumns);
+            mainToolBar->toggleViewAction()->setDisabled(true);
 
             throbber->start();
             throbber->setPaused(true);
@@ -53,6 +60,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_nav->setData(m_data);
     ui->setupUi(this);
     hasHistory(false);
+    m_model->buildColumnMenu(this, ui->columnMenu);
 
     QObject::connect(this, SIGNAL(onBack()), m_nav, SLOT(back()));
     QObject::connect(this, SIGNAL(onHome()), m_nav, SLOT(home()));
@@ -60,13 +68,13 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(m_nav, SIGNAL(hasHistory(bool)), this, SLOT(hasHistory(bool)));
     QObject::connect(m_nav, SIGNAL(selectStarted()),  this, SLOT(aTaskStarted()));
     QObject::connect(m_nav, SIGNAL(selectStopped()),  this, SLOT(aTaskStopped_nav()));
+    QObject::connect(ui->columnMenu, SIGNAL(triggered(QAction*)), this, SLOT(onChannel(QAction*)));
 
     m_model->defaultColumns();
 
     ui->treeView->setModel(m_model);
     ui->treeView->setItemDelegate(m_delegate);
     ui->treeView->header()->setSectionsClickable(true);
-    //m_model->sortColumn<Columns::Name>(ui->treeView, Qt::AscendingOrder);
     m_model->sortColumn<Columns::TotalTime>(ui->treeView, Qt::DescendingOrder);
 }
 
@@ -187,4 +195,17 @@ void MainWindow::aTaskStopped_nav()
 void MainWindow::hasHistory(bool value)
 {
     ui->actionBack->setEnabled(value);
+}
+
+void MainWindow::onChannel(QAction* action)
+{
+    bool ok = true;
+    long long ndx = action->data().toLongLong(&ok);
+    if (!ok)
+        return;
+
+    if (action->isChecked())
+        m_model->useColumn(ndx);
+    else
+        m_model->stopUsing(ndx);
 }
