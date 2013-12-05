@@ -117,6 +117,7 @@ void Navigator::cancel()
 Function::Function(const profiler::function_ptr& function, const profiler::call_ptr& calledAs)
     : m_function(function)
     , m_call_count(1)
+    , m_sub_call_count(calledAs->subcalls())
     , m_duration(calledAs->duration())
     , m_ownTime(calledAs->ownTime())
     , m_longest(calledAs->duration())
@@ -129,6 +130,7 @@ void Function::update(const profiler::call_ptr& calledAs)
 {
     ++m_call_count;
     m_duration += calledAs->duration();
+    m_sub_call_count += calledAs->subcalls();
     m_ownTime  += calledAs->ownTime();
     if (m_longest < calledAs->duration())
         m_longest = calledAs->duration();

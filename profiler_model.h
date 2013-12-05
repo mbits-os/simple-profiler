@@ -201,6 +201,11 @@ namespace Columns
         };
 
         template <typename Final, typename Scale = Direct, EAlignment Alignment = EAlignment_Right>
+        struct NumberColumnInfo: ColumnInfo<Final, Scale, Alignment>
+        {
+        };
+
+        template <typename Final, typename Scale = Direct, EAlignment Alignment = EAlignment_Right>
         struct TimeColumnInfo: ColumnInfo<Final, Scale, Alignment>
         {
             static QVariant getDisplayData(const ProfilerModel* parent, const Function& f)
@@ -245,10 +250,26 @@ namespace Columns
         static QString getData(const Function& f) { return f.name(); }
     };
 
-    struct Count: impl::ColumnInfo<Count, impl::Direct, EAlignment_Right>
+    struct Count: impl::NumberColumnInfo<Count>
     {
         static QString title() { return "Calls"; }
-        static long long getData(const Function& f) { return f.call_count(); }
+        static unsigned long long getData(const Function& f) { return f.call_count(); }
+    };
+
+    struct Subcalls: impl::NumberColumnInfo<Subcalls>
+    {
+        static QString title() { return "Subcalls"; }
+        static QVariant getData(const Function& f)
+        {
+            auto count = f.sub_call_count();
+            if (count)
+                return count;
+            return QVariant();
+        }
+        static bool less(const Function& lhs, const Function& rhs)
+        {
+            return lhs.sub_call_count() < rhs.sub_call_count();
+        }
     };
 
     struct TotalTime: impl::TimeColumnInfo<TotalTime>

@@ -12,12 +12,13 @@ typedef std::vector<profiler::call_id> CalledAs;
 class Function
 {
     profiler::function_ptr m_function;
-    CalledAs m_calls;
-    long long   m_call_count; // needed? we have m_calls.size()...
-    profiler::time_t m_duration;
-    profiler::time_t m_ownTime;
-    profiler::time_t m_longest;
-    profiler::time_t m_shortest;
+    CalledAs               m_calls;
+    unsigned long long     m_call_count;
+    unsigned long long     m_sub_call_count;
+    profiler::time_t       m_duration;
+    profiler::time_t       m_ownTime;
+    profiler::time_t       m_longest;
+    profiler::time_t       m_shortest;
 
 public:
     Function(const profiler::function_ptr& function, const profiler::call_ptr& calledAs);
@@ -26,7 +27,8 @@ public:
 
     QString name() const { return m_function ? m_function->name() : QString(); }
     const CalledAs& calls() const { return m_calls; }
-    long long call_count() const { return m_call_count; }
+    unsigned long long call_count() const { return m_call_count; }
+    unsigned long long sub_call_count() const { return m_sub_call_count; }
     profiler::time_t duration() const { return m_duration; }
     profiler::time_t ownTime() const { return m_ownTime; }
     profiler::time_t longest() const { return m_longest; }

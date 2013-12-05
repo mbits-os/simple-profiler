@@ -47,6 +47,7 @@ namespace profiler
         function_id m_function;
         time_t      m_duration;
         time_t      m_detract;
+        size_t      m_subcalls;
     public:
         call() {}
         call(call_id id, call_id parent, function_id function, time_t duration)
@@ -55,15 +56,17 @@ namespace profiler
             , m_function(function)
             , m_duration(duration)
             , m_detract(0)
+            , m_subcalls(0)
         {}
 
-        void detract(time_t amount) { m_detract += amount; }
+        void detract(time_t amount) { m_detract += amount; ++m_subcalls; }
 
         call_id id() const { return m_id; }
         call_id parent() const { return m_parent; }
         function_id functionId() const { return m_function; }
         time_t duration() const { return m_duration; }
         time_t ownTime() const { return m_duration - m_detract; }
+        size_t subcalls() const { return m_subcalls; }
 
         FIELD(call, id_field,         id);
         FIELD(call, parent_field,     parent);
