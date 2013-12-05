@@ -61,22 +61,13 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(m_nav, SIGNAL(selectStarted()),  this, SLOT(aTaskStarted()));
     QObject::connect(m_nav, SIGNAL(selectStopped()),  this, SLOT(aTaskStopped_nav()));
 
-    m_model->appendColumn(Columns::Count::create());
-    m_model->appendColumn(Columns::Subcalls::create());
-    m_model->appendColumn(Columns::TotalTime::create());
-    m_model->appendColumn(Columns::OwnTime::create());
-    m_model->appendColumn(Columns::Graph::create());
-    m_model->appendColumn(Columns::TotalTimeAvg::create());
-    m_model->appendColumn(Columns::LongestTime::create());
-    m_model->appendColumn(Columns::ShortestTime::create());
-    m_model->appendColumn(Columns::OwnTimeAvg::create());
-    m_model->appendColumn(Columns::GraphAvg::create());
-    m_model->appendColumn(Columns::Name::create());
+    m_model->defaultColumns();
 
     ui->treeView->setModel(m_model);
     ui->treeView->setItemDelegate(m_delegate);
     ui->treeView->header()->setSectionsClickable(true);
-    ui->treeView->sortByColumn(2, Qt::DescendingOrder);
+    //m_model->sortColumn<Columns::Name>(ui->treeView, Qt::AscendingOrder);
+    m_model->sortColumn<Columns::TotalTime>(ui->treeView, Qt::DescendingOrder);
 }
 
 MainWindow::~MainWindow()

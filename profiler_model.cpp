@@ -8,6 +8,7 @@ ProfilerModel::ProfilerModel(QObject *parent)
     , m_second(1)
     , m_max(1)
 {
+    m_column_bag.setModel(this);
 }
 
 void ProfilerModel::setProfileView(const FunctionsPtr& data)
@@ -34,14 +35,21 @@ void ProfilerModel::addColumn(int pos, const ColumnPtr& col)
     endInsertColumns();
 }
 
-void ProfilerModel::removeColumn(int pos)
+void ProfilerModel::removeColumn(const ColumnPtr &col)
 {
-    if ((size_t)pos >= m_columns.size())
-        pos = m_columns.size() - 1;
-
-    beginRemoveColumns(QModelIndex(), pos, pos);
     auto it = m_columns.begin();
-    std::advance(it, pos);
+    auto end = m_columns.end();
+    for (; it != end; ++it)
+    {
+        if (*it == col)
+            break;
+    }
+
+    if (it == end)
+        return;
+
+    auto colid = std::distance(m_columns.begin(), it);
+    beginRemoveColumns(QModelIndex(), colid, colid);
     m_columns.erase(it);
     // TODO: what if we removed sorted column?
     endRemoveColumns();
@@ -196,6 +204,57 @@ void ProfilerDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     }
 }
 
+ColumnBag::ColumnBag()
+{
+    using namespace Columns;
+    add<Name>();
+    add<Count>();
+    add<Subcalls>();
+    add<TotalTime>();
+    add<OwnTime>();
+    add<LongestTime>();
+    add<ShortestTime>();
+    add<TotalTimeAvg>();
+    add<OwnTimeAvg>();
+    add<Graph>();
+    add<GraphAvg>();
+}
+
+void ColumnBag::defaultColumns()
+{
+    using namespace Columns;
+    use<Count>();
+    use<TotalTime>();
+    use<OwnTime>();
+    use<Graph>();
+    use<Name>();
+}
+
+void ColumnBag::use(long long ndx)
+{
+    if (ndx < 0 || ndx >= (long long)m_defs.size())
+        return;
+
+    auto& def = m_defs[(size_t)ndx];
+
+    if (!def.use())
+        return;
+
+    m_model->appendColumn(def.col());
+}
+
+void ColumnBag::stop(long long ndx)
+{
+    if (ndx < 0 || ndx >= (long long)m_defs.size())
+        return;
+
+    auto& def = m_defs[(size_t)ndx];
+
+    if (!def.stop())
+        return;
+
+    m_model->removeColumn(def.col());
+}
 
 
 QString Columns::impl::timeFormat(profiler::time_t second, profiler::time_t ticks)

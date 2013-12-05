@@ -3,6 +3,7 @@
 
 #include <QAbstractListModel>
 #include <QStyledItemDelegate>
+#include <QTreeView>
 #include "navigator.h"
 #include <algorithm>
 
@@ -40,11 +41,81 @@ struct Column
 };
 typedef std::shared_ptr<Column> ColumnPtr;
 
+class ColumnBag
+{
+    struct ColDef
+    {
+        bool m_used;
+        ColumnPtr m_col;
+
+    public:
+        ColDef(): m_used(false) {}
+        ColDef(const ColumnPtr& col): m_used(false), m_col(col) {}
+
+        ColumnPtr col() const { return m_col; }
+        bool use()
+        {
+            if (m_used)
+                return false;
+
+            m_used = true;
+            return true;
+        }
+
+        bool stop()
+        {
+            if (!m_used)
+                return false;
+
+            m_used = false;
+            return true;
+        }
+    };
+    typedef std::vector<ColDef> ColDefs;
+
+    ProfilerModel* m_model;
+    ColDefs m_defs;
+
+    template <typename T>
+    void add()
+    {
+        if (T::created().get())
+            return;
+
+        T::bagIndex().set(m_defs.size());
+        m_defs.push_back(T::create());
+        T::created().set(true);
+    }
+
+public:
+    ColumnBag();
+
+    void setModel(ProfilerModel* model) { m_model = model; }
+
+    void defaultColumns();
+
+    void use(long long ndx);
+    void stop(long long ndx);
+
+    template <typename T> void use() { use(T::bagIndex().get()); }
+    template <typename T> void stop() { stop(T::bagIndex().get()); }
+
+    template <typename T> ColumnPtr get()
+    {
+        auto ndx = T::bagIndex().get();
+        if (ndx < 0 || ndx >= (long long)m_defs.size())
+            return nullptr;
+
+        return m_defs[(size_t)ndx].col();
+    }
+};
+
 class ProfilerModel : public QAbstractListModel
 {
     friend class MainWindow;
     Q_OBJECT
 
+    ColumnBag m_column_bag;
     std::vector<ColumnPtr> m_columns;
     profiler::time_t m_second;
     profiler::time_t m_max;
@@ -105,16 +176,46 @@ class ProfilerModel : public QAbstractListModel
 
     } m_sorter;
 
+    void addColumn(int pos, const ColumnPtr& col);
+
+    template <typename T>
+    int getIndex()
+    {
+        ColumnPtr col = m_column_bag.get<T>();
+        if (!col)
+            return -1;
+
+        int ndx = 0;
+        for (auto&& c: m_columns)
+        {
+            if (c == col)
+                return ndx;
+            ++ndx;
+        }
+
+        return -1;
+    }
+
 public:
     explicit ProfilerModel(QObject *parent = 0);
 
+    void defaultColumns() { m_column_bag.defaultColumns(); }
     void setSecond(profiler::time_t second) { m_second = second; }
     void setMaxDuration(profiler::time_t max) { m_max = max; }
     void setProfileView(const FunctionsPtr& data);
-    void appendColumn(const ColumnPtr& col) { addColumn(m_columns.size(), col); }
-    void addColumn(int pos, const ColumnPtr& col);
-    void removeColumn(int pos);
+    long long appendColumn(const ColumnPtr& col) { addColumn(m_columns.size(), col); return m_columns.size() - 1; }
+    void removeColumn(const ColumnPtr& col);
     ColumnPtr getColumn(int pos) const { return m_columns[pos]; }
+
+    template <typename T>
+    void sortColumn(QTreeView* tree, Qt::SortOrder order)
+    {
+        int ndx = getIndex<T>();
+        if (ndx < 0)
+            return;
+
+        tree->sortByColumn(ndx, order);
+    }
 
     profiler::time_t second() const { return m_second; }
     profiler::time_t max_duration() const { return m_data ? m_data->max_duration() : 1; }
@@ -148,6 +249,16 @@ namespace Columns
         struct Scaled { enum { SCALE = 1000 }; };
 
         template <typename T>
+        class Property
+        {
+            T value;
+        public:
+            Property(T defValue): value(defValue) {}
+            T get() const { return value; }
+            void set(T val) { value = val; }
+        };
+
+        template <typename T>
         struct Impl: Column
         {
             QString title() const { return T::title(); }
@@ -164,6 +275,19 @@ namespace Columns
         struct ColumnInfo: Scale
         {
             static ColumnPtr create() { return std::make_shared< Impl<Final> >();}
+
+            static Property<bool>& created()
+            {
+                static Property<bool> _(false);
+                return _;
+            }
+
+            static Property<long long>& bagIndex()
+            {
+                static Property<long long> _(-1);
+                return _;
+            }
+
             static QVariant getDisplayData(const ProfilerModel*, const Function& f)
             {
                 return Final::getData(f);
