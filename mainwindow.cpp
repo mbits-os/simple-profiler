@@ -94,7 +94,7 @@ void MainWindow::open()
 
     m_nav->cancel();
 
-    QString fileName = QFileDialog::getOpenFileName(this, QString(), QString(), tr("XML files (*.xml)"));
+    QString fileName = QFileDialog::getOpenFileName(this, QString(), QString(), tr("Viewer files (*.xcount *.count);;XML files (*.xml);;All files (*.*)"));
     if (fileName.isEmpty())
     {
         ui->actionBack->setEnabled(backEnabled);
