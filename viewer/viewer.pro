@@ -33,3 +33,14 @@ RC_FILE = ProfileViewer.rc
 win32 {
 SOURCES += win32_setIcon.cpp
 }
+
+INCLUDEPATH += ../library
+
+CONFIG(debug, debug|release) {
+unix:LIBS += -L../library/debug -lprofile
+windows:LIBS += ../library/debug/profile.lib
+}
+else {
+unix:LIBS += -L../library/release -lprofile
+windows:LIBS += ../library/release/profile.lib
+}
