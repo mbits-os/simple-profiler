@@ -1,2 +1,9 @@
 *.user
 *.orig
+
+debug
+release
+Makefile*
+
+ui_*.h
+*.pdb
