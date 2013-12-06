@@ -27,3 +27,9 @@ FORMS    += mainwindow.ui
 
 RESOURCES += \
     ProfileViewer.qrc
+
+RC_FILE = ProfileViewer.rc
+
+win32 {
+SOURCES += win32_setIcon.cpp
+}

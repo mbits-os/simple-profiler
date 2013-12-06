@@ -48,6 +48,10 @@ namespace Ui
     };
 }
 
+#if defined(Q_OS_WIN) || defined(Q_OS_CYGWIN)
+extern "C" void win32_setIcon(HWND);
+#endif
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindowEx),
@@ -76,6 +80,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->treeView->setItemDelegate(m_delegate);
     ui->treeView->header()->setSectionsClickable(true);
     m_model->sortColumn<Columns::TotalTime>(ui->treeView, Qt::DescendingOrder);
+
+#if defined(Q_OS_WIN) || defined(Q_OS_CYGWIN)
+    win32_setIcon((HWND)winId());
+#endif
 }
 
 MainWindow::~MainWindow()
