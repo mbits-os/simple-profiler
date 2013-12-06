@@ -50,7 +50,8 @@ public slots:
 private slots:
     void hasHistory(bool value);
     void onOpened(bool success, QString fileName);
-    void onChannel(QAction* action);
+    void onColumnChanged(QAction* action);
+    void onColumnsMenu(QPoint pos);
 
 signals:
     void onBack();

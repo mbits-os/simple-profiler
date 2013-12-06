@@ -72,13 +72,15 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(m_nav, SIGNAL(hasHistory(bool)), this, SLOT(hasHistory(bool)));
     QObject::connect(m_nav, SIGNAL(selectStarted()),  this, SLOT(aTaskStarted()));
     QObject::connect(m_nav, SIGNAL(selectStopped()),  this, SLOT(aTaskStopped_nav()));
-    QObject::connect(ui->columnMenu, SIGNAL(triggered(QAction*)), this, SLOT(onChannel(QAction*)));
+    QObject::connect(ui->columnMenu, SIGNAL(triggered(QAction*)), this, SLOT(onColumnChanged(QAction*)));
 
     m_model->defaultColumns();
 
     ui->treeView->setModel(m_model);
     ui->treeView->setItemDelegate(m_delegate);
     ui->treeView->header()->setSectionsClickable(true);
+    ui->treeView->header()->setContextMenuPolicy(Qt::CustomContextMenu);
+    QObject::connect(ui->treeView->header(), SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onColumnsMenu(QPoint)));
     m_model->sortColumn<Columns::TotalTime>(ui->treeView, Qt::DescendingOrder);
 
 #if defined(Q_OS_WIN) || defined(Q_OS_CYGWIN)
@@ -205,7 +207,14 @@ void MainWindow::hasHistory(bool value)
     ui->actionBack->setEnabled(value);
 }
 
-void MainWindow::onChannel(QAction* action)
+void MainWindow::onColumnsMenu(QPoint pos)
+{
+    QAction* action = ui->columnMenu->exec(ui->treeView->header()->mapToGlobal(pos));
+    if (action)
+        onColumnChanged(action);
+}
+
+void MainWindow::onColumnChanged(QAction* action)
 {
     bool ok = true;
     long long ndx = action->data().toLongLong(&ok);
