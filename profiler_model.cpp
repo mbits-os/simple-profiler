@@ -299,18 +299,18 @@ QString Columns::impl::timeFormat(profiler::time_t second, profiler::time_t tick
                 .arg(profiler::time_t((ticks*1000 / second) % 1000), 3, 10, QLatin1Char('0'));
     }
 
-    const char* freq = "s";
+    QString freq = "s";
     if (ticks*10 / second < 9)
     {
         freq = "ms";
         ticks *= 1000;
         if (ticks*10 / second < 9)
         {
-            freq = "us";
+            freq = QString("µs");
             ticks *= 1000;
             if (ticks*10 / second < 9)
             {
-                freq = "ps";
+                freq = "ns";
                 ticks *= 1000;
             }
         }
