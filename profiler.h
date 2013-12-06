@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <QString>
+#include <QFile>
 
 namespace profiler
 {
