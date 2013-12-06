@@ -180,6 +180,9 @@ namespace profiler
             typedef vector_selector< std::vector< std::shared_ptr<T> > > selector;
             static std::vector< std::shared_ptr<T> >& get_vector(data* pThis) { return select_data<T>::get_vector(pThis); }
         };
+
+        bool xml_open(QFile& file);
+        bool bin_open(QFile& file);
     public:
         data(): m_second(1) {}
         bool open(const QString& path);
