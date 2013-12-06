@@ -6,6 +6,7 @@
 #include <QThread>
 #include <QMovie>
 #include "profiler_model.h"
+#include <profile.hpp>
 
 namespace Ui
 {
@@ -19,6 +20,7 @@ namespace Ui
 
         void setupUi(QMainWindow *MainWindow)
         {
+            FUNCTION_PROBE();
             MainWindow::setupUi(MainWindow);
 
             throbber = new QMovie(":/res/throbber.gif", QByteArray(), MainWindow);
@@ -61,6 +63,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_delegate(new ProfilerDelegate(this)),
     m_animationCount(0)
 {
+    FUNCTION_PROBE();
     m_nav->setData(m_data);
     ui->setupUi(this);
     hasHistory(false);
@@ -90,12 +93,20 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    FUNCTION_PROBE();
     delete m_nav;
     delete ui;
 }
 
+QString FileDialog(MainWindow* pThis)
+{
+    FUNCTION_PROBE();
+    return QFileDialog::getOpenFileName(pThis, QString(), QString(), "Viewer files (*.xcount *.count);;XML files (*.xml);;All files (*.*)");
+}
+
 void MainWindow::open()
 {
+    FUNCTION_PROBE();
     bool backEnabled = ui->actionBack->isEnabled();
 
     ui->actionBack->setEnabled(false);
@@ -104,7 +115,8 @@ void MainWindow::open()
 
     m_nav->cancel();
 
-    QString fileName = QFileDialog::getOpenFileName(this, QString(), QString(), tr("Viewer files (*.xcount *.count);;XML files (*.xml);;All files (*.*)"));
+    QString fileName = FileDialog(this);
+
     if (fileName.isEmpty())
     {
         ui->actionBack->setEnabled(backEnabled);
@@ -127,6 +139,7 @@ void MainWindow::open()
 
 void MainWindow::doOpen(const QString& fileName)
 {
+    FUNCTION_PROBE();
     auto data = m_data;
     OpenTask* task = new OpenTask(this, [data, fileName](){ return data->open(fileName); }, fileName);
     QObject::connect(task, SIGNAL(opened(bool,QString)), this, SLOT(onOpened(bool,QString)));
@@ -142,6 +155,7 @@ void OpenTask::run()
 
 void MainWindow::onOpened(bool success, QString fileName)
 {
+    FUNCTION_PROBE();
     ui->actionBack->setEnabled(true);
     ui->actionHome->setEnabled(true);
     ui->actionOpen->setEnabled(true);
@@ -156,12 +170,14 @@ void MainWindow::onOpened(bool success, QString fileName)
 
 void MainWindow::selected(QModelIndex index)
 {
+    FUNCTION_PROBE();
     if (index.isValid())
         m_nav->navigateTo(index.row());
 }
 
 void MainWindow::aTaskStarted()
 {
+    FUNCTION_PROBE();
     if (!m_animationCount)
     {
         ui->throbber->setPaused(false);
@@ -174,6 +190,7 @@ void MainWindow::aTaskStarted()
 
 void MainWindow::aTaskStopped()
 {
+    FUNCTION_PROBE();
     if (!--m_animationCount)
     {
         ui->statusThrobber->setMovie(nullptr);
@@ -184,6 +201,7 @@ void MainWindow::aTaskStopped()
 
 void MainWindow::aTaskStopped_nav()
 {
+    FUNCTION_PROBE();
     m_model->beginResetModel();
 
     m_model->setSecond(m_data->second());
@@ -204,11 +222,13 @@ void MainWindow::aTaskStopped_nav()
 
 void MainWindow::hasHistory(bool value)
 {
+    FUNCTION_PROBE();
     ui->actionBack->setEnabled(value);
 }
 
 void MainWindow::onColumnsMenu(QPoint pos)
 {
+    FUNCTION_PROBE();
     QAction* action = ui->columnMenu->exec(ui->treeView->header()->mapToGlobal(pos));
     if (action)
         onColumnChanged(action);
@@ -216,6 +236,7 @@ void MainWindow::onColumnsMenu(QPoint pos)
 
 void MainWindow::onColumnChanged(QAction* action)
 {
+    FUNCTION_PROBE();
     bool ok = true;
     long long ndx = action->data().toLongLong(&ok);
     if (!ok)
