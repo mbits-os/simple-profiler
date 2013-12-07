@@ -22,31 +22,7 @@ namespace profile { namespace print { namespace xml {
         auto profile = collecting::probe::profile();
 
         std::ofstream os(std::string(filename) + ".xcount");
-        os << "<stats second=\"" << time::second() << "\">\n\t<calls>\n";
-
-        {
-            std::vector<collecting::call> calls;
-
-            for (auto& f : profile) for (auto& s : f) for (auto& c : s)
-                calls.push_back(c);
-
-            std::sort(begin(calls), end(calls), [](const collecting::call& lhs, const collecting::call& rhs) { return lhs.id() < rhs.id(); });
-
-            for (auto& c : calls)
-            {
-                os << "\t\t<call id=\"" << c.id() << "\"";
-                if (c.parent())
-                    os << " parent=\"" << c.parent() << "\"";
-                if (c.function())
-                    os << " function=\"" << c.function() << "\"";
-                os << " duration=\"" << c.duration() << "\"";
-                if (c.isSysCall())
-                    os << " syscall=\"true\"";
-                os << " />\n";
-            }
-        }
-
-        os << "\t</calls>\n\t<functions>\n";
+        os << "<stats second=\"" << time::second() << "\">\n\t<functions>\n";
         for (auto& f : profile)
         {
             for (auto& s : f)
@@ -58,7 +34,21 @@ namespace profile { namespace print { namespace xml {
             }
         }
 
-        os << "\t</functions>\n</stats>\n";
+        os << "\t</functions>\n\t<calls>\n";
+
+        for (auto& f : profile) for (auto& s : f) for (auto& c : s)
+        {
+            os << "\t\t<call id=\"" << c.id() << "\"";
+            if (c.parent())
+                os << " parent=\"" << c.parent() << "\"";
+            if (c.function())
+                os << " function=\"" << c.function() << "\"";
+            os << " duration=\"" << c.duration() << "\"";
+            if (c.isSysCall())
+                os << " syscall=\"true\"";
+            os << " />\n";
+        }
+        os << "\t</calls>\n</stats>\n";
     }
 
 }}} // profile::print::xml
