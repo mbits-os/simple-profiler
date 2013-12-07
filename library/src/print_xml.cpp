@@ -3,11 +3,11 @@
 #include <regex>
 #include <fstream>
 
-namespace profile { namespace print {
+namespace profile { namespace io {
     std::string fold(std::string name);
-}} // profile::print
+}} // profile::io
 
-namespace profile { namespace print { namespace xml {
+namespace profile { namespace io { namespace xml {
 
     static std::string xml(std::string attr)
     {
@@ -51,4 +51,4 @@ namespace profile { namespace print { namespace xml {
         os << "\t</calls>\n</stats>\n";
     }
 
-}}} // profile::print::xml
+}}} // profile::io::xml

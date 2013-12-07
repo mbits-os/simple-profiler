@@ -4,11 +4,11 @@
 #include <regex>
 #include <fstream>
 
-namespace profile { namespace print {
+namespace profile { namespace io {
     std::string fold(std::string name);
-}} // profile::print
+}} // profile::io
 
-namespace profile { namespace print { namespace binary {
+namespace profile { namespace io { namespace binary {
 
     struct string
     {
@@ -108,4 +108,4 @@ namespace profile { namespace print { namespace binary {
         }
     }
 
-}}} // profile::print::binary
+}}} // profile::io::binary

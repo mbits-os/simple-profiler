@@ -1,38 +1,36 @@
 #ifndef __PRINT_HPP__
 #define __PRINT_HPP__
 
-namespace profile
-{
-    namespace print
-    {
-        void xml_print(const char* filename);
-        void binary_print(const char* filename);
+namespace profile { namespace io {
 
-        enum EPrinter
-        {
-            EPrinter_XML,
-            EPrinter_BIN
-        };
+	void xml_print(const char* filename);
+	void binary_print(const char* filename);
 
-        struct printer
-        {
-            const char* m_filename;
-            EPrinter    m_typeId;
-            printer(const char* filename, EPrinter typeId = EPrinter_BIN)
-                : m_filename(filename)
-                , m_typeId(typeId)
-            {}
+	enum EPrinter
+	{
+		EPrinter_XML,
+		EPrinter_BIN
+	};
 
-            ~printer()
-            {
-                switch (m_typeId)
-                {
-                case EPrinter_XML: xml_print(m_filename); break;
-                case EPrinter_BIN: binary_print(m_filename); break;
-                }
-            }
-        };
-    }
-}
+	struct printer
+	{
+		const char* m_filename;
+		EPrinter    m_typeId;
+		printer(const char* filename, EPrinter typeId = EPrinter_BIN)
+			: m_filename(filename)
+			, m_typeId(typeId)
+		{}
+
+		~printer()
+		{
+			switch (m_typeId)
+			{
+			case EPrinter_XML: xml_print(m_filename); break;
+			case EPrinter_BIN: binary_print(m_filename); break;
+			}
+		}
+	};
+
+}} // profile::io
 
 #endif // __PRINT_HPP__
