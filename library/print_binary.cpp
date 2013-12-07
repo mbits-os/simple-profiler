@@ -87,7 +87,7 @@ namespace profile { namespace print { namespace binary {
 "version        8     4    1\n"
 "call count    12     4    -\n"
 "func count    16     4    -\n"
-"func offset   20     4    call-count * 28\n"
+"func offset   20     4    call-count * 24\n"
 "string offset 24     4    func-offset + func-count * 12\n"
 "string size   28     4    -\n"
 "second        32     8    -\n"
@@ -98,9 +98,9 @@ namespace profile { namespace print { namespace binary {
 "--------------------------\n"
 "id             0     4\n"
 "parent         4     4\n"
-"timestamp      8     8\n"
+"function       8     4\n"
+"flags         12     4\n"
 "duration      16     8\n"
-"function      24     4\n"
 "\n"
 "FUNCTION\n"
 "\n"
@@ -158,9 +158,9 @@ namespace profile { namespace print { namespace binary {
             {
                 write(os, c.id());        // u32
                 write(os, c.parent());    // u32
-                write(os, 0ull);          // u64
-                write(os, c.duration());  // u64
                 write(os, c.function());  // u32
+                write(os, c.flags());     // u32
+                write(os, c.duration());  // u64
             }
         }
 

@@ -39,7 +39,10 @@ namespace profile { namespace print { namespace xml {
                     os << " parent=\"" << c.parent() << "\"";
                 if (c.function())
                     os << " function=\"" << c.function() << "\"";
-                os << " duration=\"" << c.duration() << "\" />\n";
+                os << " duration=\"" << c.duration() << "\"";
+                if (c.isSysCall())
+                    os << " syscall=\"true\"";
+                os << " />\n";
             }
         }
 
