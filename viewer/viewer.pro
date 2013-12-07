@@ -34,7 +34,7 @@ win32 {
 SOURCES += win32_setIcon.cpp
 }
 
-INCLUDEPATH += ../library
+INCLUDEPATH += ../library/include
 
 CONFIG(debug, debug|release) {
 unix:LIBS += -L../library/debug -lprofile

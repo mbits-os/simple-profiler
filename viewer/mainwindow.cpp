@@ -6,7 +6,7 @@
 #include <QThread>
 #include <QMovie>
 #include "profiler_model.h"
-#include <profile.hpp>
+#include <profile/profile.hpp>
 
 namespace Ui
 {
@@ -100,8 +100,18 @@ MainWindow::~MainWindow()
 
 QString FileDialog(MainWindow* pThis)
 {
-    FUNCTION_PROBE();
-    return QFileDialog::getOpenFileName(pThis, QString(), QString(), "Viewer files (*.xcount *.count);;XML files (*.xml);;All files (*.*)");
+    SYSCALL_PROBE();
+
+    QFileDialog dlg(pThis, QString(), QString(), "Viewer files (*.xcount *.count);;XML files (*.xml);;All files (*.*)");
+
+    dlg.setFileMode(QFileDialog::ExistingFile);
+    if (dlg.exec() == QDialog::Rejected)
+        return QString();
+
+    QStringList list = dlg.selectedFiles();
+    if (list.isEmpty())
+        return QString();
+    return list.front();
 }
 
 void MainWindow::open()

@@ -1,10 +1,11 @@
 #include "mainwindow.h"
 #include <QApplication>
-#include <profile.hpp>
+#include <profile/profile.hpp>
+#include <profile/print.hpp>
 
 int main(int argc, char *argv[])
 {
-    profile::print::printer stats("stats", profile::print::EPrinter_BIN);
+    profile::print::printer stats("stats");
     stats;
 
     //FUNCTION_PROBE();
