@@ -17,7 +17,7 @@ namespace profile { namespace io { namespace xml {
         return std::regex_replace(attr, std::regex("\""), "&quot;");
     }
 
-    void print(const char* filename)
+    void write(const char* filename)
     {
         auto profile = collecting::probe::profile();
 

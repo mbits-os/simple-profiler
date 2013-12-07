@@ -58,36 +58,36 @@ namespace profile { namespace io {
 
 	namespace xml
 	{
-		void print(const char* filename);
+		void write(const char* filename);
 	}
 
 	namespace binary
 	{
-		void print(const char* filename);
+		void write(const char* filename);
 	}
 
-	void xml_print(const char* filename)
+	void xml_write(const char* filename)
 	{
 		collecting::call self_probe(0, 0);
 		self_probe.start();
 
-		xml::print(filename);
+		xml::write(filename);
 
 		self_probe.stop();
-		printf("xml_print took ");
+		printf("xml_write took ");
 		secs(time::second(), self_probe.duration());
 		printf("\n");
 	}
 
-	void binary_print(const char *filename)
+	void binary_write(const char *filename)
 	{
 		collecting::call self_probe(0, 0);
 		self_probe.start();
 
-		binary::print(filename);
+		binary::write(filename);
 
 		self_probe.stop();
-		printf("binary_print took ");
+		printf("binary_write took ");
 		secs(time::second(), self_probe.duration());
 		printf("\n");
 	}

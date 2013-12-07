@@ -51,7 +51,7 @@ namespace profile { namespace io { namespace binary {
         }
     };
 
-    void print(const char* filename)
+    void write(const char* filename)
     {
         auto profile = collecting::probe::profile();
 

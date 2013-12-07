@@ -11,9 +11,9 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 SOURCES += src/profile.cpp \
-    src/print.cpp \
-    src/print_xml.cpp \
-    src/print_binary.cpp \
+    src/write.cpp \
+    src/write_xml.cpp \
+    src/write_binary.cpp \
     src/read.cpp \
     src/read_xml.cpp \
     src/read_binary.cpp
@@ -21,7 +21,7 @@ SOURCES += src/profile.cpp \
 HEADERS += include/profile/profile.hpp \
     include/profile/ticker.hpp \
     include/profile/print.hpp \
-    include/profile/read.hpp \
+    include/profile/write.hpp \
     src/binary.hpp
 
 unix:!symbian {
