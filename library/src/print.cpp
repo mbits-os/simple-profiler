@@ -75,6 +75,7 @@ namespace profile
 
             xml::print(filename);
 
+            self_probe.stop();
             printf("xml_print took ");
             secs(time::second(), self_probe.duration());
             printf("\n");
@@ -87,6 +88,7 @@ namespace profile
 
             binary::print(filename);
 
+            self_probe.stop();
             printf("binary_print took ");
             secs(time::second(), self_probe.duration());
             printf("\n");
