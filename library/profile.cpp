@@ -8,10 +8,11 @@ namespace profile
 {
     namespace collecting
     {
-        call::call(call_id call, function_id fn)
+        call::call(call_id call, function_id fn, unsigned int flags)
             : m_call(call)
             , m_parent(0)
             , m_fn(fn)
+            , m_flags(flags)
             , m_timestamp(0)
             , m_duration(0)
         {
@@ -45,11 +46,11 @@ namespace profile
         {
         }
 
-        call& section::call()
+        call& section::call(unsigned int flags)
         {
             static call_id next_id = 0;
             call_id id = ++next_id;
-            m_items.emplace_back(id, m_id);
+            m_items.emplace_back(id, m_id, flags);
             return m_items.back();
         }
 
@@ -83,8 +84,8 @@ namespace profile
             return _;
         }
 
-        probe::probe(const char* name, const char* nice, const char* suffix)
-            : m_call(profile().call(name, nice, suffix))
+        probe::probe(const char* name, const char* nice, const char* suffix, unsigned int flags)
+            : m_call(profile().call(name, nice, suffix, flags))
             , prev(curr())
         {
             curr() = this;

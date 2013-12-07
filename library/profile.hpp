@@ -56,23 +56,31 @@ namespace profile
         };
     }
 
+    enum ECallFlag
+    {
+        ECallFlag_SYSCALL = 1
+    };
+
     namespace collecting
     {
         class call
         {
-            call_id     m_call;
-            call_id     m_parent;
-            function_id m_fn;
-            time::type  m_timestamp;
-            time::type  m_duration;
+            call_id      m_call;
+            call_id      m_parent;
+            function_id  m_fn;
+            unsigned int m_flags;
+            time::type   m_timestamp;
+            time::type   m_duration;
 
         public:
-            call(call_id call, function_id fn);
+            call(call_id call, function_id fn, unsigned int flags = 0);
             void set_parent(call_id parent);
 
             call_id id() const { return m_call; }
             call_id parent() const { return m_parent; }
             function_id function() const { return m_fn; }
+            unsigned int flags() const { return m_flags; }
+            bool isSysCall() const { return m_flags & ECallFlag_SYSCALL; }
             time::type timestamp() const { return m_timestamp; }
             time::type duration() const { return m_duration; }
 
@@ -89,7 +97,7 @@ namespace profile
 
             const char* name() const { return m_name; }
             function_id id() const { return m_id; }
-            call& call();
+            call& call(unsigned int flags = 0);
             void update(const collecting::call& c);
         };
 
@@ -111,7 +119,7 @@ namespace profile
         public:
             function& function(const char* name, const char* nice) { return locate(name, nice); }
 
-            call& call(const char* name, const char* nice, const char* suffix) { return function(name, nice).section(suffix).call(); }
+            call& call(const char* name, const char* nice, const char* suffix, unsigned int flags = 0) { return function(name, nice).section(suffix).call(flags); }
             void update(const char* name, const char* nice, const char* suffix, const collecting::call& c) { function(name, nice).section(suffix).update(c); }
         };
 
@@ -122,7 +130,7 @@ namespace profile
             static probe*& curr();
             static profile& profile();
 
-            probe(const char* name, const char* raw, const char* suffix);
+            probe(const char* name, const char* raw, const char* suffix, unsigned int flags = 0);
             ~probe();
         };
     }
@@ -160,6 +168,7 @@ namespace profile
 }
 
 #define FUNCTION_PROBE() profile::collecting::probe __probe(__FUNCDNAME__, __FUNCSIG__, "")
+#define SYSCALL_PROBE() profile::collecting::probe __probe(__FUNCDNAME__, __FUNCSIG__, "", profile::ECallFlag_SYSCALL)
 #define FUNCTION_PROBE2(name, suffix) profile::collecting::probe name(__FUNCDNAME__, __FUNCSIG__, suffix)
 
 #endif //__COUNTER_HPP__
