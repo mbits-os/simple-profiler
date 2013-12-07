@@ -158,7 +158,7 @@ namespace profile { namespace print { namespace binary {
             {
                 write(os, c.id());        // u32
                 write(os, c.parent());    // u32
-                write(os, c.timestamp()); // u64
+                write(os, 0ull);          // u64
                 write(os, c.duration());  // u64
                 write(os, c.function());  // u32
             }

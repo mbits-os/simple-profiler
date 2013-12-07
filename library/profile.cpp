@@ -2,7 +2,6 @@
 
 #include <string>
 #include <fstream>
-#include <chrono>
 
 namespace profile
 {
@@ -13,7 +12,6 @@ namespace profile
             , m_parent(0)
             , m_fn(fn)
             , m_flags(flags)
-            , m_timestamp(0)
             , m_duration(0)
         {
         }
@@ -22,10 +20,6 @@ namespace profile
 
         void call::start()
         {
-            using namespace std::chrono;
-            auto duration = system_clock::now().time_since_epoch();
-            m_timestamp = (time::type)duration_cast<milliseconds>(duration).count();
-
             m_duration = time::now();
         }
 

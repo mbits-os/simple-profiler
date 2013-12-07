@@ -69,7 +69,6 @@ namespace profile
             call_id      m_parent;
             function_id  m_fn;
             unsigned int m_flags;
-            time::type   m_timestamp;
             time::type   m_duration;
 
         public:
@@ -81,7 +80,6 @@ namespace profile
             function_id function() const { return m_fn; }
             unsigned int flags() const { return m_flags; }
             bool isSysCall() const { return m_flags & ECallFlag_SYSCALL; }
-            time::type timestamp() const { return m_timestamp; }
             time::type duration() const { return m_duration; }
 
             void start();
