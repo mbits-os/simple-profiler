@@ -10,14 +10,14 @@ TARGET = profile
 TEMPLATE = lib
 CONFIG += staticlib
 
-SOURCES += profile.cpp \
-    print.cpp \
-    print_xml.cpp \
-    print_binary.cpp
+SOURCES += src/profile.cpp \
+    src/print.cpp \
+    src/print_xml.cpp \
+    src/print_binary.cpp
 
-HEADERS += profile.hpp \
-    ticker.hpp \
-    print.hpp
+HEADERS += include/profile/profile.hpp \
+    include/profile/ticker.hpp \
+    include/profile/print.hpp
 
 unix:!symbian {
     maemo5 {
@@ -29,5 +29,8 @@ unix:!symbian {
 }
 
 win32 {
-SOURCES += win32_ticker.cpp
+SOURCES += src/win32_ticker.cpp
 }
+
+INCLUDEPATH += \
+    ../library/include
