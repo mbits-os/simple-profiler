@@ -13,11 +13,16 @@ CONFIG += staticlib
 SOURCES += src/profile.cpp \
     src/print.cpp \
     src/print_xml.cpp \
-    src/print_binary.cpp
+    src/print_binary.cpp \
+    src/read.cpp \
+    src/read_xml.cpp \
+    src/read_binary.cpp
 
 HEADERS += include/profile/profile.hpp \
     include/profile/ticker.hpp \
-    include/profile/print.hpp
+    include/profile/print.hpp \
+    include/profile/read.hpp \
+    src/binary.hpp
 
 unix:!symbian {
     maemo5 {
