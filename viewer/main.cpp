@@ -1,19 +1,19 @@
 #include "mainwindow.h"
 #include <QApplication>
 #include <profile/profile.hpp>
-#include <profile/print.hpp>
+#include <profile/write.hpp>
 
 int main(int argc, char *argv[])
 {
-    profile::print::printer stats("stats");
-    stats;
+	profile::io::writer stats("stats");
+	stats;
 
-    //FUNCTION_PROBE();
+	//FUNCTION_PROBE();
 
-    QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
-    w.open();
+	QApplication a(argc, argv);
+	MainWindow w;
+	w.show();
+	w.open();
 
-    return a.exec();
+	return a.exec();
 }
