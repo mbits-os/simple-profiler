@@ -16,7 +16,8 @@ SOURCES += profile.cpp \
     print_binary.cpp
 
 HEADERS += profile.hpp \
-    ticker.hpp
+    ticker.hpp \
+    print.hpp
 
 unix:!symbian {
     maemo5 {

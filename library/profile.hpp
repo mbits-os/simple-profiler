@@ -1,5 +1,5 @@
-#ifndef __COUNTER_HPP__
-#define __COUNTER_HPP__
+#ifndef __PROFILE_HPP__
+#define __PROFILE_HPP__
 
 #include <deque>
 #include "ticker.hpp"
@@ -132,41 +132,10 @@ namespace profile
             ~probe();
         };
     }
-
-    namespace print
-    {
-        void xml_print(const char* filename);
-        void binary_print(const char* filename);
-
-        enum EPrinter
-        {
-            EPrinter_XML,
-            EPrinter_BIN
-        };
-
-        struct printer
-        {
-            const char* m_filename;
-            EPrinter    m_typeId;
-            printer(const char* filename, EPrinter typeId = EPrinter_XML)
-                : m_filename(filename)
-                , m_typeId(typeId)
-            {}
-
-            ~printer()
-            {
-                switch (m_typeId)
-                {
-                case EPrinter_XML: xml_print(m_filename); break;
-                case EPrinter_BIN: binary_print(m_filename); break;
-                }
-            }
-        };
-    }
 }
 
 #define FUNCTION_PROBE() profile::collecting::probe __probe(__FUNCDNAME__, __FUNCSIG__, "")
 #define SYSCALL_PROBE() profile::collecting::probe __probe(__FUNCDNAME__, __FUNCSIG__, "", profile::ECallFlag_SYSCALL)
 #define FUNCTION_PROBE2(name, suffix) profile::collecting::probe name(__FUNCDNAME__, __FUNCSIG__, suffix)
 
-#endif //__COUNTER_HPP__
+#endif // __PROFILE_HPP__
