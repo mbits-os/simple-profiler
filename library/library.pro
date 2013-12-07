@@ -10,7 +10,10 @@ TARGET = profile
 TEMPLATE = lib
 CONFIG += staticlib
 
-SOURCES += profile.cpp
+SOURCES += profile.cpp \
+    print.cpp \
+    print_xml.cpp \
+    print_binary.cpp
 
 HEADERS += profile.hpp \
     ticker.hpp
