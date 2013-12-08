@@ -2,7 +2,8 @@ TEMPLATE = subdirs
 CONFIG += ordered
 
 SUBDIRS += \
+    3rdparty \
     library \
     viewer
 
-viewer.depends = library
+viewer.depends = 3rdparty library

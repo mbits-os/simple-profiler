@@ -37,10 +37,11 @@ SOURCES += win32_setIcon.cpp
 INCLUDEPATH += ../library/include
 
 CONFIG(debug, debug|release) {
-unix:LIBS += -L../library/debug -lprofile
-windows:LIBS += ../library/debug/profile.lib
+unix:LIBS += -L../library/debug -lprofile -lexpat
+windows:LIBS += ../library/debug/profile.lib ../3rdparty/libexpat/debug/expat.lib
 }
 else {
-unix:LIBS += -L../library/release -lprofile
-windows:LIBS += ../library/release/profile.lib
+unix:LIBS += -L../library/release -lprofile -lexpat
+windows:LIBS += ../library/release/profile.lib ../3rdparty/libexpat/release/expat.lib
 }
+
