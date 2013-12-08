@@ -23,7 +23,8 @@ HEADERS += include/profile/profile.hpp \
     include/profile/print.hpp \
     include/profile/write.hpp \
     include/profile/read.hpp \
-    src/binary.hpp
+    src/binary.hpp \
+    src/reader.hpp
 
 unix:!symbian {
     maemo5 {

@@ -72,6 +72,11 @@ namespace profile
 		};
 	}
 
+	namespace io
+	{
+		class reader;
+	}
+
 	enum ECallFlag
 	{
 		ECallFlag_SYSCALL = 1
@@ -86,6 +91,11 @@ namespace profile
 			function_id  m_fn;
 			unsigned int m_flags;
 			time::type   m_duration;
+
+			template <typename string_t>
+			friend class section_type;
+
+			call(call_id call, call_id parent, function_id fn, unsigned int flags, time::type duration);
 
 		public:
 			call(call_id call, function_id fn, unsigned int flags = 0);
@@ -110,6 +120,7 @@ namespace profile
 		{
 			string_t m_name;
 			function_id m_id;
+
 		public:
 			typedef typename string_ref<string_t>::type string_arg;
 
@@ -138,6 +149,21 @@ namespace profile
 					}
 				}
 			}
+
+		private:
+			friend class io::reader;
+			template <typename string_t>
+			friend class function_type;
+
+			section_type(string_arg name, function_id id)
+				: m_name(name)
+				, m_id(id)
+			{}
+
+			void add_call(call_id call, call_id parent, unsigned int flags, time::type duration)
+			{
+				m_items.push_back(collecting::call(call, parent, m_id, flags, duration));
+			}
 		};
 
 		template <typename string_t>
@@ -145,6 +171,23 @@ namespace profile
 		{
 			string_t m_name;
 			string_t m_nice;
+
+			friend class io::reader;
+
+			section_type<string_t>& add_section(string_arg name, function_id id)
+			{
+				for (auto& i : m_items)
+				{
+					if (string_ref<string_t>::equals(i.name(), name))
+						return i;
+				}
+
+				m_items.push_back(section_type<string_t>(name, id));
+				return m_items.back();
+			}
+
+			items& items() { return m_items; }
+
 		public:
 			function_type(string_arg name, string_arg nice)
 				: m_name(name)
@@ -164,6 +207,10 @@ namespace profile
 
 			collecting::call& call(string_arg name, string_arg nice, string_arg suffix, unsigned int flags = 0) { return function(name, nice).section(suffix).call(flags); }
 			void update(string_arg name, string_arg nice, string_arg suffix, const collecting::call& c) { function(name, nice).section(suffix).update(c); }
+
+		private:
+			friend class io::reader;
+			items& items() { return m_items; }
 		};
 
 		struct probe

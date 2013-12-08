@@ -16,6 +16,15 @@ namespace profile
 		{
 		}
 
+		call::call(call_id call, call_id parent, function_id fn, unsigned int flags, time::type duration)
+			: m_call(call)
+			, m_parent(parent)
+			, m_fn(fn)
+			, m_flags(flags)
+			, m_duration(duration)
+		{
+		}
+
 		void call::set_parent(call_id parent) { m_parent = parent; }
 
 		void call::start()
