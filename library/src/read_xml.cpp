@@ -3,7 +3,7 @@
 
 namespace profile { namespace io { namespace xml {
 
-	bool read(std::istream& is, collecting::profile& out)
+	bool read(std::istream& is, file_contents& out)
 	{
 		return false;
 	}

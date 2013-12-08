@@ -22,6 +22,7 @@ HEADERS += include/profile/profile.hpp \
     include/profile/ticker.hpp \
     include/profile/print.hpp \
     include/profile/write.hpp \
+    include/profile/read.hpp \
     src/binary.hpp
 
 unix:!symbian {
