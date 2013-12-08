@@ -11,6 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = ProfileViewer
 TEMPLATE = app
 
+DEFINES += FEATURE_IO_READ
 
 SOURCES += main.cpp\
         mainwindow.cpp \

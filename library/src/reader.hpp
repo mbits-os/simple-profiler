@@ -1,6 +1,8 @@
 #ifndef __READER_HPP__
 #define __READER_HPP__
 
+#ifdef FEATURE_IO_READ
+
 #include <profile/profile.hpp>
 #include <string>
 
@@ -62,5 +64,7 @@ namespace profile { namespace io {
 	};
 
 }}
+
+#endif // FEATURE_IO_READ
 
 #endif // __READER_HPP__

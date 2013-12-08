@@ -1,3 +1,5 @@
+#ifdef FEATURE_IO_READ
+
 #include "reader.hpp"
 #include <profile/read.hpp>
 #include <sstream>
@@ -70,3 +72,5 @@ namespace profile { namespace io {
 	}
 
 }}
+
+#endif // FEATURE_IO_READ

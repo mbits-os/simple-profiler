@@ -1,3 +1,5 @@
+#ifdef FEATURE_IO_READ
+
 #include <profile/read.hpp>
 #include <iostream>
 #include "expat.hpp"
@@ -220,3 +222,5 @@ namespace profile { namespace io { namespace xml {
 	}
 
 }}} // profile::io::xml
+
+#endif // FEATURE_IO_READ

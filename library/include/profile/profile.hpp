@@ -72,10 +72,12 @@ namespace profile
 		};
 	}
 
+#ifdef FEATURE_IO_READ
 	namespace io
 	{
 		class reader;
 	}
+#endif // FEATURE_IO_READ
 
 	enum ECallFlag
 	{
@@ -92,10 +94,12 @@ namespace profile
 			unsigned int m_flags;
 			time::type   m_duration;
 
+#ifdef FEATURE_IO_READ
 			template <typename string_t>
 			friend class section_type;
 
 			call(call_id call, call_id parent, function_id fn, unsigned int flags, time::type duration);
+#endif // FEATURE_IO_READ
 
 		public:
 			call(call_id call, function_id fn, unsigned int flags = 0);
@@ -150,6 +154,7 @@ namespace profile
 				}
 			}
 
+#ifdef FEATURE_IO_READ
 		private:
 			friend class io::reader;
 			template <typename string_t>
@@ -164,6 +169,7 @@ namespace profile
 			{
 				m_items.push_back(collecting::call(call, parent, m_id, flags, duration));
 			}
+#endif // FEATURE_IO_READ
 		};
 
 		template <typename string_t>
@@ -172,6 +178,7 @@ namespace profile
 			string_t m_name;
 			string_t m_nice;
 
+#ifdef FEATURE_IO_READ
 			friend class io::reader;
 
 			section_type<string_t>& add_section(string_arg name, function_id id)
@@ -187,6 +194,7 @@ namespace profile
 			}
 
 			items& items() { return m_items; }
+#endif // FEATURE_IO_READ
 
 		public:
 			function_type(string_arg name, string_arg nice)
@@ -208,9 +216,11 @@ namespace profile
 			collecting::call& call(string_arg name, string_arg nice, string_arg suffix, unsigned int flags = 0) { return function(name, nice).section(suffix).call(flags); }
 			void update(string_arg name, string_arg nice, string_arg suffix, const collecting::call& c) { function(name, nice).section(suffix).update(c); }
 
+#ifdef FEATURE_IO_READ
 		private:
 			friend class io::reader;
 			items& items() { return m_items; }
+#endif // FEATURE_IO_READ
 		};
 
 		struct probe

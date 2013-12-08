@@ -10,7 +10,7 @@ TARGET = profile
 TEMPLATE = lib
 CONFIG += staticlib
 
-DEFINES += XML_STATIC
+DEFINES += XML_STATIC FEATURE_IO_READ
 
 SOURCES += src/profile.cpp \
     src/write.cpp \

@@ -16,6 +16,7 @@ namespace profile
 		{
 		}
 
+#ifdef FEATURE_IO_READ
 		call::call(call_id call, call_id parent, function_id fn, unsigned int flags, time::type duration)
 			: m_call(call)
 			, m_parent(parent)
@@ -24,6 +25,7 @@ namespace profile
 			, m_duration(duration)
 		{
 		}
+#endif // FEATURE_IO_READ
 
 		void call::set_parent(call_id parent) { m_parent = parent; }
 
