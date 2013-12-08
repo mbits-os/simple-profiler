@@ -286,9 +286,9 @@ void ColumnBag::stop(long long ndx)
 }
 
 
-QString Columns::impl::timeFormat(profiler::time_t second, profiler::time_t ticks)
+QString Columns::impl::timeFormat(profiler::time_type second, profiler::time_type ticks)
 {
-    profiler::time_t seconds = ticks/second;
+    profiler::time_type seconds = ticks/second;
 
     if (seconds > 59)
     {
@@ -296,7 +296,7 @@ QString Columns::impl::timeFormat(profiler::time_t second, profiler::time_t tick
         return QString("%1m%2.%3s")
                 .arg(seconds/60)
                 .arg(ticks/second)
-                .arg(profiler::time_t((ticks*1000 / second) % 1000), 3, 10, QLatin1Char('0'));
+                .arg(profiler::time_type((ticks*1000 / second) % 1000), 3, 10, QLatin1Char('0'));
     }
 
     QString freq = "s";
@@ -318,11 +318,11 @@ QString Columns::impl::timeFormat(profiler::time_t second, profiler::time_t tick
 
     return QString("%1.%2%3")
             .arg(ticks/second)
-            .arg(profiler::time_t((ticks*1000 / second) % 1000), 3, 10, QLatin1Char('0'))
+            .arg(profiler::time_type((ticks*1000 / second) % 1000), 3, 10, QLatin1Char('0'))
             .arg(freq);
 }
 
-QString Columns::impl::usageFormat(profiler::time_t max, profiler::time_t total, profiler::time_t own)
+QString Columns::impl::usageFormat(profiler::time_type max, profiler::time_type total, profiler::time_type own)
 {
     return QString("%1.%2% / %3.%4%")
             .arg(total * 100 / max)
