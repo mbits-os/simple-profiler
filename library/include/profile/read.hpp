@@ -2,12 +2,13 @@
 #define __READ_HPP__
 
 #include "profile.hpp"
+#include <string>
 
 namespace profile { namespace io {
 
 	struct file_contents
 	{
-		collecting::profile m_profile;
+		collecting::profile_type<std::string> m_profile;
 		time::type m_second;
 
 		file_contents(): m_second(1) {}
