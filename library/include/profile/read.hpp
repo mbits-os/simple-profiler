@@ -14,7 +14,12 @@ namespace profile { namespace io {
 		file_contents(): m_second(1) {}
 	};
 
-	bool read(const char* path, file_contents& out);
+	enum
+	{
+		FAIL_UNKNOWN_FUNCTION = 0x00000001
+	};
+
+	bool read(const char* path, file_contents& out, unsigned int flags = FAIL_UNKNOWN_FUNCTION);
 
 }} // profile::io
 

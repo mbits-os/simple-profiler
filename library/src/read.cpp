@@ -6,12 +6,12 @@ namespace profile { namespace io {
 
 	namespace xml
 	{
-		bool read(std::istream& is, file_contents& out);
+		bool read(std::istream& is, file_contents& out, int flags);
 	}
 
 	namespace binary
 	{
-		bool read(std::istream& is, file_contents& out);
+		bool read(std::istream& is, file_contents& out, int flags);
 	}
 
 	bool is_binary(std::istream& s)
@@ -28,14 +28,14 @@ namespace profile { namespace io {
 		return magic == file::MAGIC;
 	}
 
-	bool read(const char* path, file_contents& out)
+	bool read(const char* path, file_contents& out, unsigned int flags)
 	{
 		std::ifstream is(path, std::ios::in | std::ios::binary);
 
 		if (is_binary(is))
-			return binary::read(is, out);
+			return binary::read(is, out, flags);
 		else
-			return xml::read(is, out);
+			return xml::read(is, out, flags);
 	}
 
 }} // profile::io
