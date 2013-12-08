@@ -274,9 +274,9 @@ namespace profiler
 		{
 			for (auto&& s: f)
 			{
-				QString name = f.name();
-				if (s.name() && *s.name())
-					name.append("!").append(s.name());
+				QString name = QString::fromStdString(f.name());
+				if (!s.name().empty())
+					name.append("!").append(QString::fromStdString(s.name()));
 
 				m_functions.push_back(std::make_shared<function>(s.id(), name));
 
