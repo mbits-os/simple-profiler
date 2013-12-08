@@ -36,43 +36,28 @@ namespace profile { namespace io {
 		{
 			collecting::section_type<std::string>& ref;
 
-			section_t(collecting::section_type<std::string>& ref) : ref(ref) {}
-			void call(call_id call, call_id parent, unsigned int flags, time::type duration)
-			{
-				add_call(ref, call, parent, flags, duration);
-			}
+			section_t(collecting::section_type<std::string>& ref);
+			void call(call_id call, call_id parent, unsigned int flags, time::type duration);
 		};
 
 		struct function_t
 		{
 			collecting::function_type<std::string>& ref;
 
-			function_t(collecting::function_type<std::string>& ref) : ref(ref) {}
-			section_t section(const std::string& name, function_id id)
-			{
-				return section_t(add_section(ref, name, id));
-			}
+			function_t(collecting::function_type<std::string>& ref);
+			section_t section(const std::string& name, function_id id);
 		};
 
-		struct profile
+		class profile
 		{
 			collecting::profile_type<std::string>& ref;
 
-			profile(collecting::profile_type<std::string>& ref) : ref(ref) {}
-			function_t function(const std::string& name) { return function_t(ref.function(name, std::string())); }
-
-			section_t section(function_id id)
-			{
-				for (auto&& f: ref.items())
-				{
-					for (auto&& s: f.items())
-					{
-						if (s.id() == id)
-							return section_t(s);
-					}
-				}
-				throw bad_section(id);
-			}
+			function_t function(const std::string& name);
+			section_t section(function_id id);
+		public:
+			profile(collecting::profile_type<std::string>& ref);
+			bool function(function_id id, const std::string &name, const std::string &suffix, unsigned int reader_flags);
+			bool call(call_id id, call_id parent, function_id function, unsigned int call_flags, time::type duration, unsigned int reader_flags);
 		};
 	};
 

@@ -40,10 +40,6 @@ namespace profile { namespace io { namespace binary {
 		out.m_second = h.second;
 
 		std::vector<char> strings(h.function_offset + 1);
-		std::vector<file::function> funcs(h.function_count);
-
-		if (funcs.size() < h.function_count)
-			return false;
 
 		if (strings.size() <= h.function_count)
 			return false;
@@ -53,14 +49,15 @@ namespace profile { namespace io { namespace binary {
 
 		strings[h.function_offset] = 0;
 
-		u64 size = h.function_count * sizeof(file::function);
-		if (is.read((char*) &funcs[0], size).gcount() != size)
-			return false;
-
 		reader::profile builder(out.m_profile);
-		for (auto&& fun: funcs)
+		for (u32 i = 0; i < h.function_count; ++i)
 		{
-			builder.function(str(strings, fun.name)).section(str(strings, fun.suffix), fun.id);
+			file::function fun;
+			if (!read(is, fun))
+				return false;
+
+			if (!builder.function(fun.id, str(strings, fun.name), str(strings, fun.suffix), flags))
+				return false;
 		}
 
 		for (u32 i = 0; i < h.call_count; ++i)
@@ -69,29 +66,8 @@ namespace profile { namespace io { namespace binary {
 			if (!read(is, c))
 				return false;
 
-			try
-			{
-				builder.section(c.function).call(c.id, c.parent, c.flags, c.duration);
-			}
-			catch(reader::bad_section)
-			{
-				if (flags & FAIL_UNKNOWN_FUNCTION)
-					return false;
-
-				std::ostringstream os;
-				os << "<unknown-" << c.function << ">";
-				try
-				{
-					builder
-						.function(os.str())
-						.section(std::string(), c.function)
-						.call(c.id, c.parent, c.flags, c.duration);
-				}
-				catch(reader::bad_section)
-				{
-					return false;
-				}
-			}
+			if (!builder.call(c.id, c.parent, c.function, c.flags, c.duration, flags))
+				return false;
 		}
 
 		return true;

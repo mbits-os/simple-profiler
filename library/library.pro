@@ -16,7 +16,8 @@ SOURCES += src/profile.cpp \
     src/write_binary.cpp \
     src/read.cpp \
     src/read_xml.cpp \
-    src/read_binary.cpp
+    src/read_binary.cpp \
+    src/reader.cpp
 
 HEADERS += include/profile/profile.hpp \
     include/profile/ticker.hpp \
