@@ -17,12 +17,15 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     profiler.cpp \
     navigator.cpp \
-    profiler_model.cpp
+    profiler_model.cpp \
+	qhierarchyview.cpp
 
 HEADERS  += mainwindow.h \
     profiler.h \
     navigator.h \
-    profiler_model.h
+    profiler_model.h \
+	QHierarchyView \
+	qhierarchyview.hpp
 
 FORMS    += mainwindow.ui
 

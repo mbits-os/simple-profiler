@@ -74,7 +74,23 @@
        </layout>
       </widget>
       <widget class="QWidget" name="callPage">
-       <layout class="QVBoxLayout" name="verticalLayout_3"/>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QHierarchyView" name="hierarchyView" native="true"/>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
@@ -211,6 +227,14 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QHierarchyView</class>
+   <extends>QWidget</extends>
+   <header>QHierarchyView</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="ProfileViewer.qrc"/>
  </resources>
