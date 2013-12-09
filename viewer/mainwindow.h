@@ -17,56 +17,61 @@ class ProfilerDelegate;
 
 class OpenTask: public QThread
 {
-    Q_OBJECT;
+	Q_OBJECT;
 
-    QString fileName;
-    std::function<bool ()> call;
+	QString fileName;
+	std::function<bool ()> call;
 public:
-    OpenTask(QObject *parent, std::function<bool ()> call, QString fileName): QThread(parent), call(call), fileName(fileName) {}
+	OpenTask(QObject *parent, std::function<bool ()> call, QString fileName): QThread(parent), call(call), fileName(fileName) {}
 
-    void run();
+	void run();
 
 signals:
-    void opened(bool success, QString fileName);
+	void opened(bool success, QString fileName);
 };
 
 class MainWindow : public QMainWindow
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+	explicit MainWindow(QWidget *parent = 0);
+	~MainWindow();
+
+	void closeEvent(QCloseEvent * event);
 
 public slots:
-    void back() { emit onBack(); }
-    void home() { emit onHome(); }
-    void open();
-    void selected(QModelIndex);
-    void aTaskStarted();
-    void aTaskStopped();
-    void aTaskStopped_nav();
+	void storeSettings();
+	void back() { emit onBack(); }
+	void home() { emit onHome(); }
+	void open();
+	void selected(QModelIndex);
+	void aTaskStarted();
+	void aTaskStopped();
+	void aTaskStopped_nav();
 
 private slots:
-    void hasHistory(bool value);
-    void onOpened(bool success, QString fileName);
-    void onColumnChanged(QAction* action);
-    void onColumnsMenu(QPoint pos);
+	void hasHistory(bool value);
+	void onOpened(bool success, QString fileName);
+	void onColumnChanged(QAction* action);
+	void onColumnsMenu(QPoint pos);
 
 signals:
-    void onBack();
-    void onHome();
-    void onNavigate(size_t);
+	void onBack();
+	void onHome();
+	void onNavigate(size_t);
 
 private:
-    Ui::MainWindowEx *ui;
-    profiler::data_ptr m_data;
-    Navigator* m_nav;
-    ProfilerModel* m_model;
-    ProfilerDelegate* m_delegate;
-    unsigned long m_animationCount;
+	Ui::MainWindowEx *ui;
+	profiler::data_ptr m_data;
+	Navigator* m_nav;
+	ProfilerModel* m_model;
+	ProfilerDelegate* m_delegate;
+	unsigned long m_animationCount;
 
-    void doOpen(const QString& fileName);
+	void loadSettings();
+
+	void doOpen(const QString& fileName);
 };
 
 #endif // MAINWINDOW_H

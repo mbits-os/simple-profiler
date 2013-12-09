@@ -11,6 +11,10 @@ int main(int argc, char *argv[])
 	//FUNCTION_PROBE();
 
 	QApplication a(argc, argv);
+	QCoreApplication::setOrganizationName("midnightBITS");
+	QCoreApplication::setOrganizationDomain("midnightbits.com");
+	QCoreApplication::setApplicationName("Profile Viewer");
+
 	MainWindow w;
 	w.show();
 	w.open();

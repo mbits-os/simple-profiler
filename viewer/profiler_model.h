@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <QAction>
 #include <QDebug>
+#include <QSettings>
 
 class MainWindow;
 
@@ -58,6 +59,8 @@ class ColumnBag
 		QAction* getAction(QObject *parent);
 
 		ColumnPtr col() const { return m_col; }
+		bool used() const { return m_used; }
+
 		bool use()
 		{
 			if (m_used)
@@ -96,6 +99,7 @@ class ColumnBag
 		T::created().set(true);
 	}
 
+	long long positionOf(const ColumnPtr& col) const;
 public:
 	ColumnBag();
 
@@ -103,6 +107,8 @@ public:
 	void buildColumnMenu(QObject* parent, QMenu* menu);
 
 	void defaultColumns();
+	bool loadSettings(QSettings& settings);
+	void storeSettings(QSettings& settings) const;
 
 	void use(long long ndx);
 	void stop(long long ndx);
@@ -210,6 +216,8 @@ public:
 	explicit ProfilerModel(QObject *parent = 0);
 
 	void defaultColumns() { m_column_bag.defaultColumns(); }
+	bool loadSettings(QSettings& settings) { return m_column_bag.loadSettings(settings); }
+	void storeSettings(QSettings& settings) const { m_column_bag.storeSettings(settings); }
 	void buildColumnMenu(QObject* parent, QMenu* menu) { m_column_bag.buildColumnMenu(parent, menu); }
 	void useColumn(long long ndx) { m_column_bag.use(ndx); }
 	void stopUsing(long long ndx) { m_column_bag.stop(ndx); }
@@ -220,6 +228,7 @@ public:
 	long long appendColumn(const ColumnPtr& col) { addColumn(m_columns.size(), col); return m_columns.size() - 1; }
 	void removeColumn(const ColumnPtr& col);
 	ColumnPtr getColumn(int pos) const { return m_columns[pos]; }
+	size_t getColumnCount() const { return m_columns.size(); }
 
 	template <typename T>
 	void sortColumn(QTreeView* tree, Qt::SortOrder order)
