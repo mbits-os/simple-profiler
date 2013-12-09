@@ -5,8 +5,10 @@
 
 int main(int argc, char *argv[])
 {
+#ifdef FEATURE_IO_WRITE
 	profile::io::writer stats("stats");
 	stats;
+#endif // FEATURE_IO_WRITE
 
 	//FUNCTION_PROBE();
 

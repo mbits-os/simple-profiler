@@ -51,6 +51,7 @@ namespace profile
 			return ++next_id;
 		}
 
+#ifdef FEATURE_IO_WRITE
 		probe*& probe::curr()
 		{
 			static probe* _ = nullptr;
@@ -80,5 +81,6 @@ namespace profile
 			curr() = prev;
 			m_call.stop();
 		}
+#endif // FEATURE_IO_WRITE
 	}
 }

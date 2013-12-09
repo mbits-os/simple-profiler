@@ -1,3 +1,5 @@
+#ifdef FEATURE_IO_WRITE
+
 #include "profile/profile.hpp"
 
 #include <regex>
@@ -93,3 +95,5 @@ namespace profile { namespace io {
 	}
 
 }} // profile::io
+
+#endif // FEATURE_IO_WRITE

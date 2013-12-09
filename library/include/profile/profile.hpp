@@ -223,6 +223,7 @@ namespace profile
 #endif // FEATURE_IO_READ
 		};
 
+#ifdef FEATURE_IO_WRITE
 		struct probe
 		{
 			call& m_call;
@@ -233,11 +234,18 @@ namespace profile
 			probe(const char* name, const char* raw, const char* suffix, unsigned int flags = 0);
 			~probe();
 		};
+#endif // FEATURE_IO_WRITE
 	}
 }
 
-#define FUNCTION_PROBE() profile::collecting::probe __probe(__FUNCDNAME__, __FUNCSIG__, "")
-#define SYSCALL_PROBE() profile::collecting::probe __probe(__FUNCDNAME__, __FUNCSIG__, "", profile::ECallFlag_SYSCALL)
-#define FUNCTION_PROBE2(name, suffix) profile::collecting::probe name(__FUNCDNAME__, __FUNCSIG__, suffix)
+#ifdef FEATURE_IO_WRITE
+#	define FUNCTION_PROBE() profile::collecting::probe __probe(__FUNCDNAME__, __FUNCSIG__, "")
+#	define SYSCALL_PROBE() profile::collecting::probe __probe(__FUNCDNAME__, __FUNCSIG__, "", profile::ECallFlag_SYSCALL)
+#	define FUNCTION_PROBE2(name, suffix) profile::collecting::probe name(__FUNCDNAME__, __FUNCSIG__, suffix)
+#else
+#	define FUNCTION_PROBE()
+#	define SYSCALL_PROBE()
+#	define FUNCTION_PROBE2(name, suffix)
+#endif // FEATURE_IO_WRITE
 
 #endif // __PROFILE_HPP__

@@ -1,3 +1,5 @@
+#ifdef FEATURE_IO_WRITE
+
 #include "profile/profile.hpp"
 #include "binary.hpp"
 
@@ -109,3 +111,5 @@ namespace profile { namespace io { namespace binary {
     }
 
 }}} // profile::io::binary
+
+#endif // FEATURE_IO_WRITE

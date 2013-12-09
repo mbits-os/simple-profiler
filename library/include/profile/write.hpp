@@ -1,6 +1,8 @@
 #ifndef __WRITE_HPP__
 #define __WRITE_HPP__
 
+#ifdef FEATURE_IO_WRITE
+
 namespace profile { namespace io {
 
 	void xml_write(const char* filename);
@@ -32,5 +34,7 @@ namespace profile { namespace io {
 	};
 
 }} // profile::io
+
+#endif // FEATURE_IO_WRITE
 
 #endif // __WRITE_HPP__
