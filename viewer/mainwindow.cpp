@@ -333,4 +333,5 @@ void MainWindow::onViewChanged(QAction* action)
 		return;
 
 	ui->stackedWidget->setCurrentIndex(page);
+    ui->actionColumns->setVisible(page == ui->actionViewList->data().toInt());
 }
