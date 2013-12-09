@@ -55,6 +55,7 @@ private slots:
 	void onOpened(bool success, QString fileName);
 	void onColumnChanged(QAction* action);
 	void onColumnsMenu(QPoint pos);
+	void onViewChanged(QAction* action);
 
 signals:
 	void onBack();

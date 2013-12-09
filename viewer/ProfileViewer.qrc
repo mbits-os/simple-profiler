@@ -6,5 +6,7 @@
         <file>res/close.png</file>
         <file>res/throbber.gif</file>
         <file>res/columns.png</file>
+        <file>res/view_calls.png</file>
+        <file>res/view_list.png</file>
     </qresource>
 </RCC>

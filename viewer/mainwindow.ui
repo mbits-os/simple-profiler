@@ -73,16 +73,8 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="throbberPage">
-       <layout class="QVBoxLayout" name="verticalLayout_3">
-        <item>
-         <widget class="QLabel" name="throbberLabel">
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-          </property>
-         </widget>
-        </item>
-       </layout>
+      <widget class="QWidget" name="callPage">
+       <layout class="QVBoxLayout" name="verticalLayout_3"/>
       </widget>
      </widget>
     </item>
@@ -122,6 +114,9 @@
    </attribute>
    <addaction name="actionBack"/>
    <addaction name="actionHome"/>
+   <addaction name="separator"/>
+   <addaction name="actionViewList"/>
+   <addaction name="actionViewCalls"/>
    <addaction name="separator"/>
    <addaction name="actionOpen"/>
    <addaction name="actionColumns"/>
@@ -188,6 +183,30 @@
    </property>
    <property name="text">
     <string>Select Columns</string>
+   </property>
+  </action>
+  <action name="actionViewList">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="ProfileViewer.qrc">
+     <normaloff>:/res/view_list.png</normaloff>:/res/view_list.png</iconset>
+   </property>
+   <property name="text">
+    <string>View List</string>
+   </property>
+  </action>
+  <action name="actionViewCalls">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="ProfileViewer.qrc">
+     <normaloff>:/res/view_calls.png</normaloff>:/res/view_calls.png</iconset>
+   </property>
+   <property name="text">
+    <string>View Calls</string>
    </property>
   </action>
  </widget>

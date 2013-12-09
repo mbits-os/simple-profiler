@@ -6,6 +6,7 @@
 #include <QThread>
 #include <QMovie>
 #include <QSettings>
+#include <QLabel>
 #include "profiler_model.h"
 #include <profile/profile.hpp>
 
@@ -18,6 +19,7 @@ namespace Ui
 		QLabel* statusMessage;
 		QLabel* statusThrobber;
 		QMenu* columnMenu;
+		QActionGroup* viewGroup;
 
 		void setupUi(QMainWindow *MainWindow)
 		{
@@ -26,8 +28,6 @@ namespace Ui
 
 			throbber = new QMovie(":/res/throbber.gif", QByteArray(), MainWindow);
 			throbber->setObjectName(QStringLiteral("throbber"));
-			throbberLabel->setMovie(throbber);
-
 			statusThrobber = new QLabel(statusBar);
 			statusThrobber->setObjectName(QStringLiteral("statusThrobber"));
 			statusThrobber->setMinimumSize(16, 16);
@@ -42,6 +42,14 @@ namespace Ui
 			actionColumns->setMenu(columnMenu);
 			mainToolBar->addAction(actionColumns);
 			mainToolBar->toggleViewAction()->setDisabled(true);
+
+			viewGroup = new QActionGroup(MainWindow);
+			viewGroup->addAction(actionViewList);
+			viewGroup->addAction(actionViewCalls);
+			viewGroup->setExclusive(true);
+
+			actionViewList->setData(0);
+			actionViewCalls->setData(1);
 
 			throbber->start();
 			throbber->setPaused(true);
@@ -77,6 +85,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	QObject::connect(m_nav, SIGNAL(selectStarted()),  this, SLOT(aTaskStarted()));
 	QObject::connect(m_nav, SIGNAL(selectStopped()),  this, SLOT(aTaskStopped_nav()));
 	QObject::connect(ui->columnMenu, SIGNAL(triggered(QAction*)), this, SLOT(onColumnChanged(QAction*)));
+	QObject::connect(ui->viewGroup, SIGNAL(triggered(QAction*)), this, SLOT(onViewChanged(QAction*)));
 
 	loadSettings();
 
@@ -119,6 +128,23 @@ void MainWindow::loadSettings()
 		ui->treeView->header()->restoreGeometry(settings.value("listGeometry").toByteArray());
 		ui->treeView->header()->restoreState(settings.value("listState").toByteArray());
 	}
+
+	QVariant view = settings.value("view");
+	QAction* checked = nullptr;
+	QList<QAction*> views = ui->viewGroup->actions();
+	for (auto&& action: views)
+	{
+		if (action->data() == view)
+		{
+			checked = action;
+			break;
+		}
+	}
+	if (!checked)
+		checked = ui->actionViewList;
+	checked->setChecked(true);
+	ui->viewGroup->triggered(checked);
+
 }
 
 void MainWindow::storeSettings()
@@ -131,6 +157,8 @@ void MainWindow::storeSettings()
 
 	settings.setValue("listGeometry", ui->treeView->header()->saveGeometry());
 	settings.setValue("listState", ui->treeView->header()->saveState());
+
+	settings.setValue("view", ui->viewGroup->checkedAction()->data());
 }
 
 QString FileDialog(MainWindow* pThis)
@@ -293,4 +321,16 @@ void MainWindow::onColumnChanged(QAction* action)
 		m_model->stopUsing(ndx);
 
 	storeSettings();
+}
+
+void MainWindow::onViewChanged(QAction* action)
+{
+	qDebug() << "onViewChanged" << action->data();
+
+	bool ok = true;
+	int page = action->data().toInt(&ok);
+	if (!ok || ui->stackedWidget->count() <= page)
+		return;
+
+	ui->stackedWidget->setCurrentIndex(page);
 }
