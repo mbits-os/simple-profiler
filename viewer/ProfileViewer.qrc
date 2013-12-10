@@ -8,5 +8,9 @@
         <file>res/columns.png</file>
         <file>res/view_calls.png</file>
         <file>res/view_list.png</file>
+        <file>res/folder_clsed.png</file>
+        <file>res/folder_opnd.png</file>
+        <file>res/node.png</file>
+        <file>res/node_ref.png</file>
     </qresource>
 </RCC>
