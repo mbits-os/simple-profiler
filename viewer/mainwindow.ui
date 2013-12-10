@@ -88,7 +88,7 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QHierarchyView" name="hierarchyView" native="true"/>
+         <widget class="QTreeView" name="callView"/>
         </item>
        </layout>
       </widget>
@@ -227,14 +227,6 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <customwidgets>
-  <customwidget>
-   <class>QHierarchyView</class>
-   <extends>QWidget</extends>
-   <header>QHierarchyView</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources>
   <include location="ProfileViewer.qrc"/>
  </resources>

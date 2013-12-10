@@ -3,6 +3,7 @@
 
 debug
 release
+shadow
 Makefile*
 
 ui_*.h
