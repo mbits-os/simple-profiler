@@ -8,6 +8,7 @@
 #include <QSettings>
 #include <QLabel>
 #include "profiler_model.h"
+#include "call_tree_model.h"
 #include <profile/profile.hpp>
 
 namespace Ui
@@ -69,6 +70,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_data(std::make_shared<profiler::data>()),
 	m_nav(new Navigator(this)),
 	m_model(new ProfilerModel(this)),
+	m_call_tree(new CallTreeModel(this)),
 	m_delegate(new ProfilerDelegate(this)),
 	m_animationCount(0)
 {
@@ -122,6 +124,8 @@ void MainWindow::loadSettings()
 	ui->treeView->header()->setSectionsClickable(true);
 	ui->treeView->header()->setContextMenuPolicy(Qt::CustomContextMenu);
 	m_model->sortColumn<Columns::TotalTime>(ui->treeView, Qt::DescendingOrder);
+
+	ui->callView->setModel(m_call_tree);
 
 	if (customColumns)
 	{
@@ -234,6 +238,7 @@ void MainWindow::onOpened(bool success, QString fileName)
 	ui->actionOpen->setEnabled(true);
 
 	m_nav->setData(m_data);
+	m_call_tree->setData(m_data);
 	home();
 	aTaskStopped();
 

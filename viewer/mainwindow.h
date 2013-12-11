@@ -14,6 +14,7 @@ class MainWindowEx;
 
 class ProfilerModel;
 class ProfilerDelegate;
+class CallTreeModel;
 
 class OpenTask: public QThread
 {
@@ -67,6 +68,7 @@ private:
 	profiler::data_ptr m_data;
 	Navigator* m_nav;
 	ProfilerModel* m_model;
+	CallTreeModel* m_call_tree;
 	ProfilerDelegate* m_delegate;
 	unsigned long m_animationCount;
 

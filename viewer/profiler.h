@@ -166,8 +166,8 @@ namespace profiler
 
 	class data
 	{
-		functions m_functions;
-		calls m_calls;
+		profiler::functions m_functions;
+		profiler::calls m_calls;
 		time_type m_second;
 
 		template <typename T> struct select_data;
@@ -205,31 +205,32 @@ namespace profiler
 			return projection_selector<T, P>(select_data<T>::get_vector(this));
 		}
 
-		const profiler::functions& functions() { return m_functions; }
+		const profiler::functions& functions() const { return m_functions; }
+		const profiler::calls& calls() const { return m_calls; }
 
-		calls selectFunctionCalls(function_id fn)
+		profiler::calls selectFunctionCalls(function_id fn)
 		{
-			return select<calls>().where([=](const call& c){ return c.functionId() == fn; });
+			return select<profiler::calls>().where([=](const call& c){ return c.functionId() == fn; });
 		}
 
-		calls selectFunctionCalls(function_id fn, call_id called_from)
+		profiler::calls selectFunctionCalls(function_id fn, call_id called_from)
 		{
-			return select<calls>().where([=](const call& c){ return c.functionId() == fn && c.parent() == called_from; });
+			return select<profiler::calls>().where([=](const call& c){ return c.functionId() == fn && c.parent() == called_from; });
 		}
 
 		call::id_field::vector selectIdsOfFunctionCalls(function_id fn)
 		{
-			return select<calls, call::id_field>().where([=](const call& c){ return c.functionId() == fn; });
+			return select<profiler::calls, call::id_field>().where([=](const call& c){ return c.functionId() == fn; });
 		}
 
 		call::id_field::vector selectIdsOfFunctionCalls(function_id fn, call_id called_from)
 		{
-			return select<calls, call::id_field>().where([=](const call& c){ return c.functionId() == fn && c.parent() == called_from; });
+			return select<profiler::calls, call::id_field>().where([=](const call& c){ return c.functionId() == fn && c.parent() == called_from; });
 		}
 
-		calls selectCalledFrom(call_id called_from)
+		profiler::calls selectCalledFrom(call_id called_from)
 		{
-			return select<calls>().where([=](const call& c){ return c.parent() == called_from; });
+			return select<profiler::calls>().where([=](const call& c){ return c.parent() == called_from; });
 		}
 	};
 
