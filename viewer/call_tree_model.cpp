@@ -196,6 +196,26 @@ void CallTreeModel::setData(const profiler::data_ptr& data)
 	endResetModel();
 }
 
+bool CallTreeModel::findLink(QModelIndex& inoutIndex)
+{
+	if (!inoutIndex.isValid())
+		return false;
+
+	const call_tree::item* item = static_cast<const call_tree::item*>(inoutIndex.internalPointer());
+	auto fun = item->link();
+
+	if (!fun)
+		return false;
+
+	call_tree::item* link = fun.get();
+
+	if (!link || link == &m_db)
+		return false;
+
+	inoutIndex = createIndex(link->row(), 0, link);
+	return true;
+}
+
 QVariant CallTreeModel::data(const QModelIndex &index, int role) const
 {
 	static QString icons[] =

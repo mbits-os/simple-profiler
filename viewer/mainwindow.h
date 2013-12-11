@@ -47,6 +47,7 @@ public slots:
 	void home() { emit onHome(); }
 	void open();
 	void selected(QModelIndex);
+	void referenced(QModelIndex);
 	void aTaskStarted();
 	void aTaskStopped();
 	void aTaskStopped_nav();

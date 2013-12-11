@@ -52,8 +52,8 @@ namespace call_tree
 		virtual size_t count() const = 0;
 		virtual item* at(size_t i) const = 0;
 		virtual EIconType icon(bool expanded) const = 0;
-		virtual item* link() const { return nullptr; }
-		function_ptr parent() const { return _parent; }
+		virtual function_ptr link() const { return nullptr; }
+		item*  parent() const { return _parent; }
 		size_t row() const { return _row; }
 	};
 
@@ -162,6 +162,7 @@ public:
 	explicit CallTreeModel(QObject *parent = 0);
 
 	void setData(const profiler::data_ptr& data);
+	bool findLink(QModelIndex& inoutIndex);
 
 	QVariant data(const QModelIndex &index, int role) const;
 	Qt::ItemFlags flags(const QModelIndex &) const { return Qt::ItemIsEnabled | Qt::ItemIsSelectable; }

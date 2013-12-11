@@ -253,6 +253,20 @@ void MainWindow::selected(QModelIndex index)
 		m_nav->navigateTo(index.row());
 }
 
+void MainWindow::referenced(QModelIndex index)
+{
+	FUNCTION_PROBE();
+	if (!index.isValid())
+		return;
+	if (m_call_tree->findLink(index))
+	{
+		auto selection = ui->callView->selectionModel();
+		selection->clear();
+		selection->select(index, QItemSelectionModel::Select | QItemSelectionModel::Rows);
+		ui->callView->scrollTo(index);
+	}
+}
+
 void MainWindow::aTaskStarted()
 {
 	FUNCTION_PROBE();
