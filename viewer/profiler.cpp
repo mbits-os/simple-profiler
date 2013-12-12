@@ -29,13 +29,13 @@ namespace profiler
 			{
 				QString name = QString::fromStdString(f.name());
 				if (!s.name().empty())
-					name.append("!").append(QString::fromStdString(s.name()));
+					name.append("/").append(QString::fromStdString(s.name()));
 
-				m_functions.push_back(std::make_shared<function>(s.id(), name));
+				m_functions.push_back(std::make_shared<function>(s.id(), name, !s.name().empty()));
 
 				for (auto&& c: s)
 				{
-					m_calls.push_back(std::make_shared<call>(c.id(), c.parent(), c.function(), c.duration()));
+					m_calls.push_back(std::make_shared<call>(c.id(), c.parent(), c.function(), c.duration(), c.flags()));
 				}
 			}
 		}

@@ -28,12 +28,14 @@ namespace profiler
 	{
 		QString m_name;
 		function_id m_id;
+		bool m_is_section;
 	public:
 		function() {}
-		function(function_id id, const QString& name): m_name(name), m_id(id) {}
+		function(function_id id, const QString& name, bool is_section): m_name(name), m_id(id), m_is_section(is_section) {}
 
 		const QString& name() const { return m_name; }
 		function_id id() const { return m_id; }
+		bool is_section() const { return m_is_section; }
 
 		FIELD(function, name_field,     name);
 		FIELD(function, parent_field,   id);
@@ -45,21 +47,23 @@ namespace profiler
 
 	class call
 	{
-		call_id     m_id;
-		call_id     m_parent;
-		function_id m_function;
-		time_type   m_duration;
-		time_type   m_detract;
-		size_t      m_subcalls;
+		call_id      m_id;
+		call_id      m_parent;
+		function_id  m_function;
+		time_type    m_duration;
+		time_type    m_detract;
+		size_t       m_subcalls;
+		unsigned int m_flags;
 	public:
 		call() {}
-		call(call_id id, call_id parent, function_id function, time_type duration)
+		call(call_id id, call_id parent, function_id function, time_type duration, unsigned int flags)
 			: m_id(id)
 			, m_parent(parent)
 			, m_function(function)
 			, m_duration(duration)
 			, m_detract(0)
 			, m_subcalls(0)
+			, m_flags(flags)
 		{}
 
 		void detract(time_type amount) { m_detract += amount; ++m_subcalls; }
@@ -70,6 +74,7 @@ namespace profiler
 		time_type duration() const { return m_duration; }
 		time_type ownTime() const { return m_duration - m_detract; }
 		size_t subcalls() const { return m_subcalls; }
+		unsigned int flags() const { return m_flags; }
 
 		FIELD(call, id_field,         id);
 		FIELD(call, parent_field,     parent);
