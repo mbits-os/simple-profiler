@@ -410,6 +410,35 @@ namespace Columns
 		}
 	};
 
+	struct Type: impl::ColumnInfo<Type>
+	{
+		static QString title() { return "Type"; }
+		static QString getData(const Function& f)
+		{
+			if (f.is_section())
+				return "Section";
+			if (f.has_at_least_one_syscall())
+				return "Library call";
+			return "Function";
+		}
+		static int intType(const Function& f)
+		{
+			if (f.is_section())
+				return 1;
+			if (f.has_at_least_one_syscall())
+				return 2;
+			return 0;
+		}
+		static bool less(const Function& lhs, const Function& rhs)
+		{
+			int l = intType(lhs);
+			int r = intType(rhs);
+			if (l != r)
+				return l < r;
+			return lhs.name() < rhs.name();
+		}
+	};
+
 	struct Count: impl::NumberColumnInfo<Count>
 	{
 		static QString title() { return "Calls"; }

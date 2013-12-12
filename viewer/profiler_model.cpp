@@ -242,6 +242,7 @@ ColumnBag::ColumnBag()
 	add<OwnTimeAvg>();
 	add<Graph>();
 	add<GraphAvg>();
+	add<Type>();
 }
 
 void ColumnBag::buildColumnMenu(QObject* parent, QMenu* menu)
