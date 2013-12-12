@@ -216,9 +216,9 @@ bool CallTreeModel::findLink(QModelIndex& inoutIndex)
 	return true;
 }
 
-QVariant CallTreeModel::data(const QModelIndex &index, int role) const
+QIcon iconFile(call_tree::EIconType normal, call_tree::EIconType expanded)
 {
-	static QString icons[] =
+	static const QString icons[] =
 	{
 		":/res/folder_clsed.png",
 		":/res/folder_opnd.png",
@@ -226,6 +226,17 @@ QVariant CallTreeModel::data(const QModelIndex &index, int role) const
 		":/res/node_ref.png"
 	};
 
+	if (normal == expanded)
+		return icons[normal];
+
+	QIcon icon;
+	icon.addFile(icons[normal]);
+	icon.addFile(icons[expanded], QSize(), QIcon::Normal, QIcon::On);
+	return icon;
+}
+
+QVariant CallTreeModel::data(const QModelIndex &index, int role) const
+{
 	const call_tree::item* item = nullptr;
 	if (index.isValid())
 		item = static_cast<const call_tree::item*>(index.internalPointer());
@@ -238,7 +249,7 @@ QVariant CallTreeModel::data(const QModelIndex &index, int role) const
 	case Qt::DisplayRole:
 		return item->name();
 	case Qt::DecorationRole:
-		return QIcon(icons[item->icon(false)]);
+		return iconFile(item->icon(false), item->icon(true));
 	}
 
 	return QVariant();
@@ -302,4 +313,3 @@ bool CallTreeModel::hasChildren(const QModelIndex &parent) const
 {
 	return rowCount(parent) != 0;
 }
-
