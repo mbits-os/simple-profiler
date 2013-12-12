@@ -13,6 +13,7 @@ class Function
 {
 	profiler::function_ptr m_function;
 	CalledAs               m_calls;
+	CalledAs               m_subcalls;
 	unsigned long long     m_call_count;
 	unsigned long long     m_sub_call_count;
 	profiler::time_type    m_duration;
@@ -24,10 +25,12 @@ class Function
 public:
 	Function(const profiler::function_ptr& function, const profiler::call_ptr& calledAs);
 	void update(const profiler::call_ptr& calledAs);
+	void updateSubcalls(const CalledAs& subcalls) { m_subcalls.insert(end(m_subcalls), begin(subcalls), end(subcalls)); }
 	profiler::function_id id() const { return m_function->id(); }
 
 	QString name() const { return m_function ? m_function->name() : QString(); }
 	const CalledAs& calls() const { return m_calls; }
+	const CalledAs& subcalls() const { return m_subcalls; }
 	unsigned long long call_count() const { return m_call_count; }
 	unsigned long long sub_call_count() const { return m_sub_call_count; }
 	profiler::time_type duration() const { return m_duration; }
@@ -47,7 +50,7 @@ class Functions
 	profiler::time_type m_max_duration;
 	profiler::time_type m_max_duration_avg;
 public:
-	void update(const profiler::functions& functions, const profiler::call_ptr& calledAs);
+	void update(const profiler::functions& functions, const profiler::call_ptr& calledAs, const CalledAs& subcalls);
 	size_t size() const { return m_functions.size(); }
 	FunctionPtr at(size_t ndx) const { return m_functions.at(ndx); }
 	functions::const_iterator begin() const { return m_functions.begin(); }
@@ -70,11 +73,11 @@ public:
 	bool is_cached() const { return m_cached != nullptr; }
 	const QString& name() const { return m_name; }
 
-	void update(const profiler::functions& functions, const profiler::call_ptr& calledAs)
+	void update(const profiler::functions& functions, const profiler::call_ptr& calledAs, const CalledAs& subcalls)
 	{
 		if (!m_cached)
 			m_cached = std::make_shared<Functions>();
-		m_cached->update(functions, calledAs);
+		m_cached->update(functions, calledAs, subcalls);
 	}
 
 	void normalize() { if (m_cached) m_cached->normalize(); }

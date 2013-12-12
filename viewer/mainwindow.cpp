@@ -108,6 +108,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent * event)
 {
+	FUNCTION_PROBE();
 	storeSettings();
 	QMainWindow::closeEvent(event);
 }
@@ -226,6 +227,7 @@ void MainWindow::doOpen(const QString& fileName)
 
 void OpenTask::run()
 {
+	FUNCTION_PROBE();
 	bool success = call();
 	emit opened(success, fileName);
 }

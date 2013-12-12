@@ -4,6 +4,11 @@
 #include <deque>
 #include "ticker.hpp"
 
+#ifdef FEATURE_MT_ENABLED
+#include <atomic>
+#include <mutex>
+#endif // FEATURE_MT_ENABLED
+
 namespace profile
 {
 	typedef unsigned int call_id;
@@ -83,6 +88,30 @@ namespace profile
 	{
 		ECallFlag_SYSCALL = 1
 	};
+
+#ifdef FEATURE_MT_ENABLED
+
+	namespace mt
+	{
+		class spin_lock
+		{
+			std::atomic<bool> _lock;
+		public:
+			spin_lock(): _lock(false) {}
+
+			void lock()
+			{
+				while (_lock.exchange(true)) {}
+			}
+
+			void unlock()
+			{
+				_lock = false;
+			}
+		};
+	}
+
+#endif // FEATURE_MT_ENABLED
 
 	namespace collecting
 	{
@@ -213,7 +242,16 @@ namespace profile
 		public:
 			function_type<string_t>& function(string_arg name, string_arg nice) { return locate(name, nice); }
 
-			collecting::call& call(string_arg name, string_arg nice, string_arg suffix, unsigned int flags = 0) { return function(name, nice).section(suffix).call(flags); }
+			collecting::call& call(string_arg name, string_arg nice, string_arg suffix, unsigned int flags = 0)
+			{
+#ifdef FEATURE_MT_ENABLED
+				static mt::spin_lock barrier;
+				std::lock_guard<mt::spin_lock> guard(barrier);
+				(void)(guard);
+#endif // FEATURE_MT_ENABLED
+
+				return function(name, nice).section(suffix).call(flags);
+			}
 			void update(string_arg name, string_arg nice, string_arg suffix, const collecting::call& c) { function(name, nice).section(suffix).update(c); }
 
 #ifdef FEATURE_IO_READ

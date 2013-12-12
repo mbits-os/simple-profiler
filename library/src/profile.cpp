@@ -3,8 +3,59 @@
 #include <string>
 #include <fstream>
 
+#ifdef FEATURE_MT_ENABLED
+#include <thread>
+#include <list>
+#endif // FEATURE_MT_ENABLED
+
 namespace profile
 {
+#ifdef FEATURE_MT_ENABLED
+
+	namespace mt
+	{
+		struct curr
+		{
+			collecting::probe* m_curr;
+			std::thread::id m_id;
+			curr(): m_curr(nullptr), m_id(std::this_thread::get_id()) {}
+
+			bool operator == (const std::thread::id& id) const { return m_id == id; }
+		};
+
+		class threads
+		{
+			std::list<curr> m_sinks;
+			spin_lock m_barrier;
+
+			static threads& inst()
+			{
+				static threads _;
+				return _;
+			}
+
+		public:
+			static curr& get()
+			{
+				auto& i = inst();
+				std::lock_guard<spin_lock> guard(i.m_barrier);
+				(void)(guard); // "unused"
+
+				auto key = std::this_thread::get_id();
+				for (auto&& sink: i.m_sinks)
+				{
+					if (sink == key)
+						return sink;
+				}
+
+				i.m_sinks.push_back(curr());
+				return i.m_sinks.back();
+			}
+		};
+	}
+
+#endif // FEATURE_MT_ENABLED
+
 	namespace collecting
 	{
 		call::call(call_id call, function_id fn, unsigned int flags)
@@ -52,10 +103,15 @@ namespace profile
 		}
 
 #ifdef FEATURE_IO_WRITE
+
 		probe*& probe::curr()
 		{
+#ifdef FEATURE_MT_ENABLED
+			return mt::threads::get().m_curr;
+#else
 			static probe* _ = nullptr;
 			return _;
+#endif
 		}
 
 		profile_type<const char*>& probe::profile()

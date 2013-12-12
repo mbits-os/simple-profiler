@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
 	stats;
 #endif // FEATURE_IO_WRITE
 
-	//FUNCTION_PROBE();
+	FUNCTION_PROBE();
 
 	QApplication a(argc, argv);
 	QCoreApplication::setOrganizationName("midnightBITS");
@@ -21,5 +21,6 @@ int main(int argc, char *argv[])
 	w.show();
 	w.open();
 
+	FUNCTION_PROBE2(exec, "exec");
 	return a.exec();
 }
