@@ -12,5 +12,7 @@
         <file>res/folder_opnd.png</file>
         <file>res/node.png</file>
         <file>res/node_ref.png</file>
+        <file>res/node_section.png</file>
+        <file>res/node_syscall.png</file>
     </qresource>
 </RCC>
