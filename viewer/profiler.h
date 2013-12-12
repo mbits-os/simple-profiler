@@ -5,6 +5,7 @@
 #include <vector>
 #include <QString>
 #include <QFile>
+#include "profile/profile.hpp"
 
 namespace profile { namespace io { struct file_contents; }}
 
@@ -75,6 +76,7 @@ namespace profiler
 		time_type ownTime() const { return m_duration - m_detract; }
 		size_t subcalls() const { return m_subcalls; }
 		unsigned int flags() const { return m_flags; }
+		bool is_syscall() const { return m_flags & profile::ECallFlag_SYSCALL; }
 
 		FIELD(call, id_field,         id);
 		FIELD(call, parent_field,     parent);
@@ -236,6 +238,11 @@ namespace profiler
 		profiler::calls selectCalledFrom(call_id called_from)
 		{
 			return select<profiler::calls>().where([=](const call& c){ return c.parent() == called_from; });
+		}
+
+		call::id_field::vector selectIdsOfCalledFrom(call_id called_from)
+		{
+			return select<profiler::calls, call::id_field>().where([=](const call& c){ return c.parent() == called_from; });
 		}
 	};
 

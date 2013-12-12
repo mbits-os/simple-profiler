@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QPainter>
 #include <QMenu>
+#include <sstream>
 
 ProfilerModel::ProfilerModel(QObject *parent)
 	: QAbstractListModel(parent)
@@ -70,6 +71,15 @@ QVariant ProfilerModel::data(const QModelIndex &index, int role) const
 				break;
 
 			return m_columns.at(index.column())->getDisplayData(this, *function.get());
+		}
+		case Qt::DecorationRole:
+		{
+			auto function = m_sorted.at(index.row());
+
+			if (!function)
+				break;
+
+			return icons::icon(m_columns.at(index.column())->getIcon(*function.get()));
 		}
 		case Qt::PrimaryDisplayRole:
 		{

@@ -9,6 +9,7 @@
 #include <QAction>
 #include <QDebug>
 #include <QSettings>
+#include "icons.h"
 
 class MainWindow;
 
@@ -41,6 +42,7 @@ struct Column
 	virtual bool isProgress() const = 0;
 	virtual profiler::time_type maxDuration(const ProfilerModel* parent) const = 0;
 	virtual bool less(const Function& lhs, const Function& rhs) const = 0;
+	virtual icons::EIconType getIcon(const Function&) const = 0;
 };
 typedef std::shared_ptr<Column> ColumnPtr;
 
@@ -292,6 +294,7 @@ namespace Columns
 			bool isProgress() const { return T::isProgress(); }
 			profiler::time_type maxDuration(const ProfilerModel* parent) const { return T::maxDuration(parent); }
 			bool less(const Function& lhs, const Function& rhs) const { return T::less(lhs, rhs); }
+			icons::EIconType getIcon(const Function& f) const { return T::getIcon(f); }
 		};
 
 		template <typename Final, typename Scale = Direct, EAlignment Alignment = EAlignment_Left>
@@ -345,6 +348,8 @@ namespace Columns
 			{
 				return parent->max_duration() * SCALE;
 			}
+
+			static icons::EIconType getIcon(const Function&) { return icons::EIconType_None; }
 		};
 
 		template <typename Final, typename Scale = Direct, EAlignment Alignment = EAlignment_Right>
@@ -395,6 +400,14 @@ namespace Columns
 	{
 		static QString title() { return "Name"; }
 		static QString getData(const Function& f) { return f.name(); }
+		static icons::EIconType getIcon(const Function& f)
+		{
+			if (f.is_section())
+				return icons::EIconType_Section;
+			if (f.has_at_least_one_syscall())
+				return icons::EIconType_Syscall;
+			return icons::EIconType_Function;
+		}
 	};
 
 	struct Count: impl::NumberColumnInfo<Count>

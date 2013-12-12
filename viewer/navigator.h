@@ -19,6 +19,7 @@ class Function
 	profiler::time_type    m_ownTime;
 	profiler::time_type    m_longest;
 	profiler::time_type    m_shortest;
+	bool                   m_at_least_one_syscall;
 
 public:
 	Function(const profiler::function_ptr& function, const profiler::call_ptr& calledAs);
@@ -33,6 +34,8 @@ public:
 	profiler::time_type ownTime() const { return m_ownTime; }
 	profiler::time_type longest() const { return m_longest; }
 	profiler::time_type shortest() const { return m_shortest; }
+	bool is_section() const { return m_function->is_section(); }
+	bool has_at_least_one_syscall() const {return m_at_least_one_syscall; }
 };
 
 typedef std::shared_ptr<Function> FunctionPtr;
