@@ -36,8 +36,9 @@ namespace call_tree
 	enum EIconType
 	{
 		EIconType_Folder,
-		EIconType_FolderOpened,
 		EIconType_Function,
+		EIconType_Section,
+		EIconType_Syscall,
 		EIconType_Reference
 	};
 
@@ -51,7 +52,7 @@ namespace call_tree
 		virtual QString name() const = 0;
 		virtual size_t count() const = 0;
 		virtual item* at(size_t i) const = 0;
-		virtual EIconType icon(bool expanded) const = 0;
+		virtual EIconType icon() const = 0;
 		virtual function_ptr link() const { return nullptr; }
 		item*  parent() const { return _parent; }
 		size_t row() const { return _row; }
@@ -65,7 +66,7 @@ namespace call_tree
 		QString name() const;
 		size_t count() const { return 0; }
 		item* at(size_t) const { return nullptr; }
-		EIconType icon(bool) const { return EIconType_Reference; }
+		EIconType icon() const { return EIconType_Reference; }
 		virtual function_ptr link() const { return ref.lock(); }
 	};
 
@@ -74,7 +75,7 @@ namespace call_tree
 		ERefType type;
 		function_refs items;
 
-		function_ref_list(ERefType type, item* _parent): item(_parent), type(type) {}
+		function_ref_list(ERefType type, item* _parent): item(_parent, type == ERefType_CALLS ? 1 : 0), type(type) {}
 
 		void push_back(const function_ptr& ref)
 		{
@@ -87,13 +88,14 @@ namespace call_tree
 		QString name() const;
 		size_t count() const { return items.size(); }
 		item* at(size_t i) const { return i < items.size() ? items.at(i).get() : nullptr; }
-		EIconType icon(bool expanded) const { return expanded ? EIconType_FolderOpened : EIconType_Folder; }
+		EIconType icon() const { return EIconType_Folder; }
 	};
 
 	struct function: item
 	{
 		profiler::function_id id;
 		QString _name;
+		EIconType _icon;
 
 		function_ref_list_ptr calls;
 		function_ref_list_ptr called_by;
@@ -102,6 +104,7 @@ namespace call_tree
 			: item(_parent, _row)
 			, id(id)
 			, _name(name)
+			, _icon(EIconType_Function)
 			, calls(std::make_shared<function_ref_list>(ERefType_CALLS, this))
 			, called_by(std::make_shared<function_ref_list>(ERefType_CALLED_BY, this))
 		{}
@@ -132,7 +135,7 @@ namespace call_tree
 			}
 			return nullptr;
 		}
-		EIconType icon(bool) const { return EIconType_Function; }
+		EIconType icon() const { return _icon; }
 	private:
 		static void copy(function_ref_list_ptr& dst, const build::function_weak_list& src, const function_list& list);
 		static function_ptr find(const function_list& list, profiler::function_id id);
@@ -149,7 +152,7 @@ namespace call_tree
 		QString name() const { return "Name"; }
 		size_t count() const { return m_functions.size(); }
 		item* at(size_t i) const { return i < m_functions.size() ? m_functions.at(i).get() : nullptr; }
-		EIconType icon(bool) const { return EIconType_Function; }
+		EIconType icon() const { return EIconType_Function; }
 	};
 }
 

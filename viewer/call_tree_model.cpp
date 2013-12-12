@@ -2,6 +2,7 @@
 #include "algorithm"
 #include <QIcon>
 #include <QDebug>
+#include <profile/profile.hpp>
 
 namespace call_tree
 {
@@ -21,6 +22,7 @@ namespace call_tree
 		{
 			profiler::call_id id;
 			profiler::call_id parent_id;
+			unsigned int flags;
 
 			call_weak parent;
 			function_weak owner;
@@ -29,6 +31,7 @@ namespace call_tree
 			call(const profiler::call& src, const function_ptr& owner)
 				: id(src.id())
 				, parent_id(src.parent())
+				, flags(src.flags())
 				, owner(owner)
 			{}
 		};
@@ -46,12 +49,18 @@ namespace call_tree
 			function(const profiler::function& src, item* _parent, size_t row)
 				: id(src.id())
 				, dst(std::make_shared<call_tree::function>(src.id(), src.name(), _parent, row))
-			{}
+			{
+				if (src.is_section())
+					dst->_icon = EIconType_Section;
+			}
 
 			void build_refs()
 			{
+				bool is_any_syscall = false;
 				for (auto&& occ: occurence)
 				{
+					if (occ->flags & profile::ECallFlag_SYSCALL)
+						is_any_syscall = true;
 					auto parent = occ->parent.lock();
 					if (parent)
 					{
@@ -67,6 +76,9 @@ namespace call_tree
 							calls[fun->dst->_name] = fun;
 					}
 				}
+
+				if (dst->_icon == EIconType_Function && is_any_syscall)
+					dst->_icon = EIconType_Syscall;
 			}
 		};
 	}
@@ -216,27 +228,24 @@ bool CallTreeModel::findLink(QModelIndex& inoutIndex)
 	return true;
 }
 
-QIcon iconFile(call_tree::EIconType normal, call_tree::EIconType expanded)
+QIcon iconFile(const QString& off, const QString& on)
 {
-	static const QString icons[] =
-	{
-		":/res/folder_clsed.png",
-		":/res/folder_opnd.png",
-		":/res/node.png",
-		":/res/node_ref.png"
-	};
-
-	if (normal == expanded)
-		return icons[normal];
-
 	QIcon icon;
-	icon.addFile(icons[normal]);
-	icon.addFile(icons[expanded], QSize(), QIcon::Normal, QIcon::On);
+	icon.addFile(off);
+	icon.addFile(on, QSize(), QIcon::Normal, QIcon::On);
 	return icon;
 }
 
 QVariant CallTreeModel::data(const QModelIndex &index, int role) const
 {
+	static const QIcon icons[] =
+	{
+		iconFile(":/res/folder_clsed.png", ":/res/folder_opnd.png"),
+		QIcon(":/res/node.png"),
+		QIcon(":/res/node_section.png"),
+		QIcon(":/res/node_syscall.png"),
+		QIcon(":/res/node_ref.png")
+	};
 	const call_tree::item* item = nullptr;
 	if (index.isValid())
 		item = static_cast<const call_tree::item*>(index.internalPointer());
@@ -249,7 +258,7 @@ QVariant CallTreeModel::data(const QModelIndex &index, int role) const
 	case Qt::DisplayRole:
 		return item->name();
 	case Qt::DecorationRole:
-		return iconFile(item->icon(false), item->icon(true));
+		return icons[item->icon()];
 	}
 
 	return QVariant();
