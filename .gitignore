@@ -10,3 +10,5 @@ Makefile*
 
 ui_*.h
 *.pdb
+*.count
+*.xcount
