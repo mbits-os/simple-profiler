@@ -51,7 +51,7 @@ namespace call_tree
 				, dst(std::make_shared<call_tree::function>(src.id(), src.name(), _parent, row))
 			{
 				if (src.is_section())
-					dst->_icon = EIconType_Section;
+					dst->_icon = icons::EIconType_Section;
 			}
 
 			void build_refs()
@@ -77,8 +77,8 @@ namespace call_tree
 					}
 				}
 
-				if (dst->_icon == EIconType_Function && is_any_syscall)
-					dst->_icon = EIconType_Syscall;
+				if (dst->_icon == icons::EIconType_Function && is_any_syscall)
+					dst->_icon = icons::EIconType_Syscall;
 			}
 		};
 	}
@@ -238,14 +238,6 @@ QIcon iconFile(const QString& off, const QString& on)
 
 QVariant CallTreeModel::data(const QModelIndex &index, int role) const
 {
-	static const QIcon icons[] =
-	{
-		iconFile(":/res/folder_clsed.png", ":/res/folder_opnd.png"),
-		QIcon(":/res/node.png"),
-		QIcon(":/res/node_section.png"),
-		QIcon(":/res/node_syscall.png"),
-		QIcon(":/res/node_ref.png")
-	};
 	const call_tree::item* item = nullptr;
 	if (index.isValid())
 		item = static_cast<const call_tree::item*>(index.internalPointer());
@@ -258,7 +250,7 @@ QVariant CallTreeModel::data(const QModelIndex &index, int role) const
 	case Qt::DisplayRole:
 		return item->name();
 	case Qt::DecorationRole:
-		return icons[item->icon()];
+		return icons::icon(item->icon());
 	}
 
 	return QVariant();
