@@ -4,6 +4,8 @@
 debug
 release
 shadow
+out
+outd
 Makefile*
 
 ui_*.h
