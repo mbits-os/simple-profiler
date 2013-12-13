@@ -92,8 +92,8 @@ namespace call_tree
 		function_ref_list_ptr calls;
 		function_ref_list_ptr called_by;
 
-		function(profiler::function_id id, const QString& name, item* _parent, size_t _row)
-			: item(_parent, _row)
+		function(profiler::function_id id, const QString& name, item* _parent)
+			: item(_parent)
 			, id(id)
 			, _name(name)
 			, _icon(icons::EIconType_Function)

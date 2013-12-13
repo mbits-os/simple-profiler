@@ -46,9 +46,9 @@ namespace call_tree
 
 			call_tree::function_ptr dst;
 
-			function(const profiler::function& src, item* _parent, size_t row)
+			function(const profiler::function& src, item* _parent)
 				: id(src.id())
-				, dst(std::make_shared<call_tree::function>(src.id(), src.name(), _parent, row))
+				, dst(std::make_shared<call_tree::function>(src.id(), src.name(), _parent))
 			{
 				if (src.is_section())
 					dst->_icon = icons::EIconType_Section;
@@ -134,7 +134,7 @@ namespace call_tree
 		for (auto&& f : prof_functions)
 		{
 			if (!f) continue;
-			functions[f->id()] = std::make_shared<build::function>(*f.get(), this, functions.size());
+			functions[f->id()] = std::make_shared<build::function>(*f.get(), this);
 		}
 
 		for (auto&& c : prof_calls)
@@ -178,6 +178,19 @@ namespace call_tree
 
 		for (auto&& f : functions)
 			f.second->dst->copy_refs(f.second, m_functions);
+
+		std::sort(begin(m_functions), end(m_functions), [](const function_ptr& lhs, const function_ptr& rhs){
+			if (!lhs)
+				return rhs != nullptr;
+
+			if (!rhs)
+				return false;
+
+			return lhs->name() < rhs->name();
+		});
+
+		for (size_t i = 0; i < m_functions.size(); ++i)
+			m_functions[i]->setRow(i);
 	}
 
 	// tree items:
@@ -223,6 +236,8 @@ bool CallTreeModel::findLink(QModelIndex& inoutIndex)
 
 	if (!link || link == &m_db)
 		return false;
+
+	qDebug() << link->row() << link->name();
 
 	inoutIndex = createIndex(link->row(), 0, link);
 	return true;
