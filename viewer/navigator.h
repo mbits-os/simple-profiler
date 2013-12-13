@@ -50,7 +50,7 @@ class Functions
 	profiler::time_type m_max_duration;
 	profiler::time_type m_max_duration_avg;
 public:
-	void update(const profiler::functions& functions, const profiler::call_ptr& calledAs, const CalledAs& subcalls);
+	void update(const profiler::functions& functions, const profiler::call_ptr& calledAs);
 	size_t size() const { return m_functions.size(); }
 	FunctionPtr at(size_t ndx) const { return m_functions.at(ndx); }
 	functions::const_iterator begin() const { return m_functions.begin(); }
@@ -73,11 +73,11 @@ public:
 	bool is_cached() const { return m_cached != nullptr; }
 	const QString& name() const { return m_name; }
 
-	void update(const profiler::functions& functions, const profiler::call_ptr& calledAs, const CalledAs& subcalls)
+	void update(const profiler::functions& functions, const profiler::call_ptr& calledAs)
 	{
 		if (!m_cached)
 			m_cached = std::make_shared<Functions>();
-		m_cached->update(functions, calledAs, subcalls);
+		m_cached->update(functions, calledAs);
 	}
 
 	void normalize() { if (m_cached) m_cached->normalize(); }
