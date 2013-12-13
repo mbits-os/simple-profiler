@@ -141,7 +141,7 @@ signals:
 public slots:
 	void back();
 	void home();
-	void navigateTo(size_t);
+	void navigateTo(const Function*);
 	void cancel();
 
 private slots:

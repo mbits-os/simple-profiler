@@ -57,6 +57,14 @@ void ProfilerModel::removeColumn(const ColumnPtr &col)
 	endRemoveColumns();
 }
 
+FunctionPtr ProfilerModel::getItem(const QModelIndex& index)
+{
+	if (index.isValid() && (size_t)index.row() < m_sorted.size())
+		return m_sorted[index.row()];
+
+	return nullptr;
+}
+
 QVariant ProfilerModel::data(const QModelIndex &index, int role) const
 {
 	if (index.isValid() && (size_t)index.column() < m_columns.size() && index.row() < rowCount(index.parent()))

@@ -245,6 +245,7 @@ public:
 	profiler::time_type second() const { return m_second; }
 	profiler::time_type max_duration() const { return m_data ? m_data->max_duration() : 1; }
 	profiler::time_type max_duration_avg() const { return m_data ? m_data->max_duration_avg() : 1; }
+	FunctionPtr getItem(const QModelIndex& index);
 
 	//Qt::ItemFlags flags(const QModelIndex &index) const;
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;

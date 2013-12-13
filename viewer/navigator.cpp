@@ -96,10 +96,8 @@ void Navigator::home()
 	select(nullptr, []{});
 }
 
-void Navigator::navigateTo(size_t ndx)
+void Navigator::navigateTo(const Function* function)
 {
-	auto cached = m_currentView->get_cached();
-	auto function = cached ? cached->at(ndx) : nullptr;
 	if (!function)
 		return;
 

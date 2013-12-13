@@ -62,7 +62,7 @@ private slots:
 signals:
 	void onBack();
 	void onHome();
-	void onNavigate(size_t);
+	void onNavigate(const Function*);
 
 private:
 	Ui::MainWindowEx *ui;

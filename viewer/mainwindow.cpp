@@ -82,7 +82,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	QObject::connect(this, SIGNAL(onBack()), m_nav, SLOT(back()));
 	QObject::connect(this, SIGNAL(onHome()), m_nav, SLOT(home()));
-	QObject::connect(this, SIGNAL(onNavigate(size_t)), m_nav, SLOT(navigateTo(size_t)));
+	QObject::connect(this, SIGNAL(onNavigate(const Function*)), m_nav, SLOT(navigateTo(const Function*)));
 	QObject::connect(m_nav, SIGNAL(hasHistory(bool)), this, SLOT(hasHistory(bool)));
 	QObject::connect(m_nav, SIGNAL(selectStarted()),  this, SLOT(aTaskStarted()));
 	QObject::connect(m_nav, SIGNAL(selectStopped()),  this, SLOT(aTaskStopped_nav()));
@@ -251,8 +251,9 @@ void MainWindow::onOpened(bool success, QString fileName)
 void MainWindow::selected(QModelIndex index)
 {
 	FUNCTION_PROBE();
-	if (index.isValid())
-		m_nav->navigateTo(index.row());
+	auto target = m_model->getItem(index);
+	if (target)
+		onNavigate(target.get());
 }
 
 void MainWindow::referenced(QModelIndex index)
